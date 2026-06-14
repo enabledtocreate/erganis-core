@@ -1,0 +1,16 @@
+# Local DB files
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+# Docker volumes
+docker-volumes/
+
+# Terraform/Infrastructure state (if using)
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+.env
+.env.local

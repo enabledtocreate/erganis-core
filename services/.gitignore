@@ -1,0 +1,10 @@
+node_modules/
+__pycache__/
+bin/
+obj/
+out/
+*.dll
+*.exe
+.env
+.env.local
+*.log

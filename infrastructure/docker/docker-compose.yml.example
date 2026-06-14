@@ -1,0 +1,39 @@
+# Example docker-compose.yml for local development
+# Copy to docker-compose.yml and customize
+
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: erganis
+      POSTGRES_USER: erganis
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Redis (for caching/queues)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ../../services/api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://erganis:dev_password@postgres:5432/erganis
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  postgres_data:

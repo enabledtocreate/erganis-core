@@ -1,0 +1,6 @@
+# Generated SDKs (keep source schemas, ignore generated code)
+generated/
+dist/
+build/
+.env
+.env.local

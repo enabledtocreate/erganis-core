@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erganis.dev/schemas/module/erganis.module.schema.json",
+  "title": "Erganis Module Manifest",
+  "type": "object",
+  "required": ["id", "name", "version", "erganisCoreVersion", "entryPoint"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9.-]*$",
+      "description": "Unique module identifier (e.g. erganis.inventory)"
+    },
+    "name": { "type": "string" },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?$"
+    },
+    "erganisCoreVersion": {
+      "type": "string",
+      "description": "Semver range compatible with Core (e.g. ^1.0.0)"
+    },
+    "description": { "type": "string" },
+    "entryPoint": {
+      "type": "string",
+      "description": "Path to Nest dynamic module bootstrap"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["moduleId", "versionRange"],
+        "properties": {
+          "moduleId": { "type": "string" },
+          "versionRange": { "type": "string" }
+        }
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "properties": {
+        "provides": { "type": "array", "items": { "type": "string" } },
+        "requires": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "RBAC permissions this module declares"
+    },
+    "contributions": {
+      "type": "object",
+      "properties": {
+        "surfaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["surfaceId"],
+            "properties": {
+              "surfaceId": { "type": "string" },
+              "operations": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["surfaceId", "action", "stepId", "handler", "failureClass"],
+            "properties": {
+              "surfaceId": { "type": "string" },
+              "action": {
+                "type": "string",
+                "enum": ["load", "save", "draft", "archive", "approve", "sync"]
+              },
+              "stepId": { "type": "string" },
+              "handler": { "type": "string" },
+              "compensate": { "type": "string" },
+              "failureClass": {
+                "type": "string",
+                "enum": ["required", "optional", "advisory"]
+              },
+              "retryPolicy": {
+                "type": "object",
+                "properties": {
+                  "maxAttempts": { "type": "integer", "minimum": 1 },
+                  "backoffMs": { "type": "integer", "minimum": 0 }
+                }
+              }
+            }
+          }
+        },
+        "jobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["jobId", "handler"],
+            "properties": {
+              "jobId": { "type": "string" },
+              "handler": { "type": "string" },
+              "schedule": { "type": "string" }
+            }
+          }
+        },
+        "ui": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "slot": { "type": "string" },
+              "component": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

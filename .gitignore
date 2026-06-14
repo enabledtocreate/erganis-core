@@ -1,0 +1,13 @@
+# OS and editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+.env
+.env.local
+**/node_modules/
+**/dist/
+**/build/
+**/*.log

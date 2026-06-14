@@ -1,0 +1,15 @@
+{
+  "name": "@erganis/contracts",
+  "version": "0.1.0",
+  "description": "Erganis API contracts, schemas, and generated public API subsets",
+  "private": true,
+  "scripts": {
+    "generate-public": "node scripts/generate-public-api.js v1",
+    "generate-public:v2": "node scripts/generate-public-api.js v2",
+    "compile-manifest": "node scripts/compile-module-manifest.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "devDependencies": {
+    "yaml": "^2.3.4"
+  }
+}

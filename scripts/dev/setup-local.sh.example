@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Example local development setup script
+# Copy to setup-local.sh and customize
+
+set -e
+
+echo "Setting up Erganis local development environment..."
+
+# Check prerequisites
+command -v docker >/dev/null 2>&1 || { echo "Docker is required but not installed. Aborting." >&2; exit 1; }
+command -v node >/dev/null 2>&1 || { echo "Node.js is required but not installed. Aborting." >&2; exit 1; }
+
+# Clone submodules if needed
+if [ ! -d "contracts" ]; then
+    echo "Initializing submodules..."
+    git submodule update --init --recursive
+fi
+
+# Start infrastructure
+echo "Starting infrastructure services..."
+cd infrastructure/docker
+docker-compose up -d
+
+# Wait for services to be ready
+echo "Waiting for services to start..."
+sleep 5
+
+# Run migrations (data layer lives in data/)
+echo "Running database migrations..."
+# e.g. (cd data && npm run migrate 2>/dev/null) || true
+
+# Install dependencies
+echo "Installing dependencies..."
+cd ../../contracts && npm install
+cd ../apps && npm install
+cd ../services && npm install
+
+echo "Setup complete! Run 'npm run dev' in apps/ or services/ to start development."

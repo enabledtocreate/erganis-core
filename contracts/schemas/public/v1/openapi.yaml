@@ -1,0 +1,37 @@
+openapi: 3.1.0
+info:
+  title: Erganis API
+  description: Core API specification. Public subset is generated; see schemas/public/v1/, v2/, etc.
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+  /projects:
+    get:
+      summary: List projects
+      responses:
+        "200":
+          description: List of projects
+    post:
+      summary: Create project
+      responses:
+        "201":
+          description: Created
+  /projects/{id}:
+    get:
+      summary: Get project by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Project
+        "404":
+          description: Not found

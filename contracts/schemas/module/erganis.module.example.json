@@ -1,0 +1,60 @@
+{
+  "id": "erganis.inventory",
+  "name": "Erganis Inventory",
+  "version": "0.1.0",
+  "erganisCoreVersion": "^1.0.0",
+  "description": "Inventory management for design firms",
+  "entryPoint": "./dist/module.js",
+  "dependencies": [
+    {
+      "moduleId": "erganis.documents",
+      "versionRange": "^0.1.0"
+    }
+  ],
+  "contracts": {
+    "provides": [
+      "erganis.contracts.inventory/product"
+    ],
+    "requires": [
+      "erganis.contracts.core/organization"
+    ]
+  },
+  "permissions": [
+    "module:inventory:read",
+    "module:inventory:write"
+  ],
+  "contributions": {
+    "surfaces": [
+      {
+        "surfaceId": "product",
+        "operations": [
+          "load",
+          "save",
+          "draft"
+        ]
+      }
+    ],
+    "operations": [
+      {
+        "surfaceId": "product",
+        "action": "save",
+        "stepId": "inventory-save",
+        "handler": "./handlers/save-product.js",
+        "compensate": "./handlers/compensate-save-product.js",
+        "failureClass": "required"
+      }
+    ],
+    "jobs": [
+      {
+        "jobId": "inventory.reindex",
+        "handler": "./jobs/reindex.js"
+      }
+    ],
+    "ui": [
+      {
+        "slot": "studio.sidebar",
+        "component": "./ui/InventoryNav.tsx"
+      }
+    ]
+  }
+}
