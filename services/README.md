@@ -2,7 +2,7 @@
 
 **NestJS application tier** — Core runtime, orchestrator, API gateway, background jobs.
 
-See [SCAFFOLD.md](./SCAFFOLD.md) and [docs/STACK.md](../../docs/STACK.md).
+See [docs/erganis-product-plan.md](../../docs/erganis-product-plan.md) (Core services and stack).
 
 ## Structure
 
