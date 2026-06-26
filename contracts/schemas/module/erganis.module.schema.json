@@ -112,6 +112,29 @@
           }
         }
       }
+    },
+    "migrations": {
+      "type": "array",
+      "description": "SQL or migration scripts run on module enable/upgrade (Core migrator)",
+      "items": {
+        "type": "object",
+        "required": ["version", "path"],
+        "properties": {
+          "version": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      }
+    },
+    "installScripts": {
+      "type": "array",
+      "description": "One-time install hooks (indexes, seed data) run when module is first enabled",
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": { "type": "string" }
+        }
+      }
     }
   }
 }

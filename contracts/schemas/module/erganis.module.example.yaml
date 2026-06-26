@@ -40,3 +40,10 @@ contributions:
   ui:
     - slot: studio.sidebar
       component: ./ui/InventoryNav.tsx
+
+migrations:
+  - version: "0.1.0"
+    path: ./migrations/001_inventory.sql
+
+installScripts:
+  - path: ./scripts/install.sql
