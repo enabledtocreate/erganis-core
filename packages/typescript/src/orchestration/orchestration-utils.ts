@@ -51,12 +51,23 @@ export function computeOutcome(
   if (requiredFailed) {
     return 'failed';
   }
+  const hasOptionalFailed = stepResults.some(
+    (s) => s.failureClass === 'optional' && s.status === 'failed',
+  );
   const hasWarning = stepResults.some((s) => s.status === 'warning');
-  if (hasWarning) {
+  if (hasOptionalFailed || hasWarning) {
     return 'partial';
   }
   return 'success';
 }
+
+/** Actions that acquire entity locks when entityPublicId is present. */
+export const LOCKABLE_ACTIONS: ReadonlySet<OperationEnvelope['action']> = new Set([
+  'save',
+  'draft',
+  'archive',
+  'approve',
+]);
 
 export function assertHandlersRegistered(
   steps: OperationStepSpec[],

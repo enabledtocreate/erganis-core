@@ -2,6 +2,7 @@ import {
   createOperationId,
   computeOutcome,
   resolveStepsForOperation,
+  LOCKABLE_ACTIONS,
 } from './orchestration-utils';
 import { OperationEnvelope, OperationStepSpec } from './operation-envelope';
 
@@ -38,20 +39,22 @@ describe('orchestration utils', () => {
   });
 
   it('computeOutcome returns failed when required step fails', () => {
-    const steps: OperationStepSpec[] = [
-      {
-        moduleId: 'm',
-        stepId: 's',
-        handler: 'h',
-        failureClass: 'required',
-        phase: 'db',
-      },
-    ];
     expect(
       computeOutcome([{ status: 'failed', failureClass: 'required' }]),
     ).toBe('failed');
     expect(computeOutcome([{ status: 'success', failureClass: 'required' }])).toBe(
       'success',
     );
+  });
+
+  it('computeOutcome returns partial when optional step fails', () => {
+    expect(
+      computeOutcome([{ status: 'failed', failureClass: 'optional' }]),
+    ).toBe('partial');
+  });
+
+  it('LOCKABLE_ACTIONS includes save but not load', () => {
+    expect(LOCKABLE_ACTIONS.has('save')).toBe(true);
+    expect(LOCKABLE_ACTIONS.has('load')).toBe(false);
   });
 });

@@ -18,4 +18,5 @@ export default () => ({
   modulesRoot:
     process.env.MODULES_ROOT ??
     path.resolve(process.cwd(), '../../studio/modules'),
+  entityLockTtlSeconds: parseInt(process.env.ENTITY_LOCK_TTL_SECONDS ?? '300', 10),
 });

@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
 import { OperationEnvelope } from '@erganis/platform';
 import { AuthenticatedRequest, SessionGuard } from '../auth/guards/session.guard';
 import { UserRepository } from '../auth/infrastructure/user.repository';
@@ -25,12 +26,18 @@ export class OperationsController {
 
   @Post('execute')
   @UseGuards(SessionGuard)
-  async execute(@Req() req: AuthenticatedRequest, @Body() envelope: OperationEnvelope) {
+  async execute(
+    @Req() req: AuthenticatedRequest,
+    @Body() envelope: OperationEnvelope,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const user = await this.users.findById(req.userId!);
-    return this.orchestrator.execute({
+    const result = await this.orchestrator.execute({
       envelope,
       userId: req.userId!,
       userPublicId: user?.publicId ?? '',
     });
+    res.status(result.outcome === 'partial' ? 200 : 201);
+    return result;
   }
 }

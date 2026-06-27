@@ -56,4 +56,6 @@ export interface OperationResult {
   action: OperationAction;
   steps: OperationStepResult[];
   warnings: OperationWarning[];
+  /** Set when entityPublicId was locked and version bumped (C3). */
+  entityVersion?: number;
 }

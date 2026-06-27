@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erganis.dev/schemas/envelope/operation-envelope.json",
+  "title": "OperationEnvelope",
+  "type": "object",
+  "required": ["surfaceId", "action", "orgSlug", "payload"],
+  "properties": {
+    "operationId": { "type": "string", "minLength": 1 },
+    "surfaceId": { "type": "string", "minLength": 1 },
+    "action": {
+      "type": "string",
+      "enum": ["load", "save", "draft", "archive", "approve", "sync"]
+    },
+    "orgSlug": { "type": "string", "minLength": 1 },
+    "entityPublicId": { "type": "string", "minLength": 1 },
+    "entityVersion": { "type": "integer", "minimum": 1 },
+    "payload": { "type": "object", "additionalProperties": true }
+  },
+  "additionalProperties": false
+}

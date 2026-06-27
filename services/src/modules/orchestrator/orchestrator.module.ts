@@ -7,12 +7,21 @@ import { UserRepository } from '../auth/infrastructure/user.repository';
 import { LoaderModule } from '../loader/loader.module';
 import { OrchestratorService } from './orchestrator.service';
 import { OperationsController } from './operations.controller';
+import { EntityLockService } from './application/entity-lock.service';
+import { EntityLockRepository } from './infrastructure/entity-lock.repository';
 
 @Module({
   imports: [LoaderModule, AuthModule],
   controllers: [OperationsController],
   providers: [
     OrchestratorService,
+    EntityLockService,
+    {
+      provide: EntityLockRepository,
+      useFactory: (db: DatabaseService) =>
+        createPoolRepository(EntityLockRepository, db.getPool()),
+      inject: [DatabaseService],
+    },
     {
       provide: OrgRepository,
       useFactory: (db: DatabaseService) =>
