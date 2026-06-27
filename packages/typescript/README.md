@@ -2,6 +2,17 @@
 
 Hand-maintained npm libraries for Core and module authors.
 
-**Phase 0+:** populated as the Nest shell and orchestrator land (e.g. envelope types, transaction scope, platform errors).
+## Packages
+
+| Package | Path | Status |
+|---------|------|--------|
+| **`@erganis/platform`** | `src/` | Phase 0 — shared health/API types |
+
+**Phase 0+:** envelope helpers, transaction scope, platform errors land here as phases progress.
+
+```bash
+npm install
+npm run build   # emits dist/
+```
 
 See [`../README.md`](../README.md) for layout rules.

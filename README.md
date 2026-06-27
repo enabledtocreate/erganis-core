@@ -16,6 +16,16 @@ Single repo for the **Core** layer of Erganis Platform: contracts, data, infrast
 
 Use **relative paths** between these folders.
 
+## Quick start
+
+```bash
+docker compose -f infrastructure/docker/docker-compose.yml up -d postgres   # optional
+./scripts/dev/setup-local.sh   # or setup-local.ps1 on Windows
+cd services && cp .env.example .env && npm run start:dev
+```
+
+**Phase 0 complete** — Nest shell, health endpoints, Postgres readiness. See [`docs/temp/PHASE-0.md`](docs/temp/PHASE-0.md).
+
 ## Apps
 
 Studio, Agora, and Companion live in **separate repos**. They consume the **API** (URL or generated SDK from `contracts/sdk/`).

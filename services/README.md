@@ -43,6 +43,39 @@ Legacy placeholder folders (`api-gateway/`, `business-logic/`, …) were removed
 
 Redis is **not required** for v1 (pg-boss uses PostgreSQL).
 
+## Quick start (Phase 0)
+
+```bash
+# From core repo root — optional Postgres via Docker
+docker compose -f infrastructure/docker/docker-compose.yml up -d postgres
+
+# Install deps
+cd packages/typescript && npm install && npm run build
+cd ../../services && npm install
+
+# Configure
+cp .env.example .env
+
+# Dev server (port 5000)
+npm run start:dev
+```
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /health` | Liveness — always `200` |
+| `GET /health/ready` | Readiness — pings Postgres when `DATABASE_URL` set; `database: skipped` otherwise |
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run build` | Compile Nest app |
+| `npm test` | Unit tests (Jest) |
+| `npm run test:e2e` | HTTP e2e tests (supertest) |
+| `npm run start:dev` | Watch mode |
+
+See [`../docs/temp/PHASE-0.md`](../docs/temp/PHASE-0.md) for implementation notes.
+
 ## Related
 
 - **core/contracts** — API schemas and SDK generation

@@ -13,7 +13,7 @@ if ((Get-Command docker -ErrorAction SilentlyContinue) -and (Test-Path $composeF
     Write-Host "Ensure PostgreSQL is running (native or Docker)."
 }
 
-@("contracts", "data", "services", "packages") | ForEach-Object {
+@("contracts", "packages/typescript", "services") | ForEach-Object {
     if (Test-Path "$_/package.json") {
         Write-Host "Installing dependencies in $_..."
         Push-Location $_
@@ -22,4 +22,7 @@ if ((Get-Command docker -ErrorAction SilentlyContinue) -and (Test-Path $composeF
     }
 }
 
-Write-Host "Setup complete. Jobs: pg-boss (PostgreSQL)." -ForegroundColor Green
+Write-Host "Setup complete." -ForegroundColor Green
+Write-Host "  - Postgres: localhost:5432 (db erganis)"
+Write-Host "  - Core API: cd services && npm run start:dev (port 5000)"
+Write-Host "  - Jobs: pg-boss (PostgreSQL)."

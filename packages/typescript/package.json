@@ -1,0 +1,15 @@
+{
+  "name": "@erganis/platform",
+  "version": "0.1.0",
+  "description": "Shared TypeScript types and utilities for Erganis Core (no Nest runtime)",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "echo \"No unit tests yet\" && exit 0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

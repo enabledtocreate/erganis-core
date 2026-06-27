@@ -14,7 +14,7 @@ else
   echo "Ensure PostgreSQL is running (native install or Docker)."
 fi
 
-for dir in contracts data services packages; do
+for dir in contracts packages/typescript services; do
   if [ -f "$dir/package.json" ]; then
     echo "Installing dependencies in $dir..."
     (cd "$dir" && npm install)
@@ -22,5 +22,6 @@ for dir in contracts data services packages; do
 done
 
 echo "Setup complete."
-echo "  - Postgres: localhost:5432 (db erganis)"
+echo "  - Postgres: localhost:5432 (db erganis, user erganis)"
+echo "  - Core API: cd services && npm run start:dev (port 5000)"
 echo "  - Jobs: pg-boss (PostgreSQL); no Redis required for v1."
