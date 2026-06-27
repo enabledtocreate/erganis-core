@@ -9,6 +9,7 @@ import { FileModule } from './modules/file/file.module';
 import { SurfaceModule } from './modules/surface/surface.module';
 import { PublicApiModule } from './modules/public-api/public-api.module';
 import { PlatformServicesModule } from './modules/platform-services/platform-services.module';
+import { CompositionModule } from './modules/composition/composition.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PlatformServicesModule } from './modules/platform-services/platform-ser
     SurfaceModule,
     PublicApiModule,
     PlatformServicesModule,
+    CompositionModule,
   ],
 })
 export class AppModule {}
