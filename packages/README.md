@@ -1,32 +1,31 @@
 # Erganis Packages
 
-**Shared tools** — reusable libraries and utilities used across layers.
+Hand-maintained **shared libraries** for Core, module authors, and integrators. **Not** generated API clients — those live in [`../contracts/sdk/`](../contracts/sdk/).
 
-## Structure
+## Layout (by language)
 
-- `ui/` — UI component libraries (React, Vue, etc.)
-- `logging/` — Logging utilities and abstractions
-- `auth/` — Authentication/authorization helpers
-- `utils/` — General utilities
-- `dotnet/` — .NET shared libraries
-- `typescript/` — TypeScript/JavaScript shared libraries
+| Folder | Status | Purpose |
+|--------|--------|---------|
+| **`typescript/`** | Active (Phase 0+) | TS libs used by `services/`, `tools/`, and npm consumers — envelope helpers, `DbUnitOfWork`, platform errors, DAL interfaces |
+| **`dotnet/`** | **Reserved** | Future NuGet libs (`Erganis.Platform`, etc.) — hand-authored helpers that complement generated C# clients |
 
-## Purpose
+## Rules
 
-Code shared across **app repos** (e.g. erganis-studio), **services**, and **infrastructure**:
-- UI components used by multiple apps
-- Logging libraries used by services
-- Authentication helpers used everywhere
-- Utility functions
+- **Contracts stay in `contracts/`** — OpenAPI and JSON Schema are the source of truth.
+- **Do not hand-write HTTP clients here** — generate into `contracts/sdk/{typescript,dotnet}/`.
+- **No Nest runtime in pure packages** — framework wiring stays in `services/`.
+- **Core server runtime stays TypeScript** — .NET integrates via HTTP clients and optional sidecar modules, not inside Nest.
 
-## Publishing
+## Publishing (when implemented)
 
-Packages are published as:
-- npm packages (for TypeScript/JavaScript)
-- NuGet packages (for .NET)
-- Other package managers as needed
+| Ecosystem | Registry | Typical packages |
+|-----------|----------|------------------|
+| TypeScript | npm (`@erganis/*`) | Platform helpers from `typescript/` |
+| .NET | NuGet (`Erganis.*`) | Platform helpers from `dotnet/` (future) |
+
+SDK and platform package versions should track Core releases.
 
 ## GitHub
 
 **Owner:** [enabledtocreate](https://github.com/enabledtocreate)  
-**Repo:** `erganis-packages`
+**Repo:** `erganis-core` (this folder lives in Core — not a separate packages repo)

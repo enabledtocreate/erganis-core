@@ -1,15 +1,31 @@
 # Erganis Core Services
 
-**NestJS application tier** — Core runtime, orchestrator, API gateway, background jobs.
+**NestJS application** — Core runtime: auth, orchestrator, module loader, Surface/Public APIs, pg-boss jobs.
 
-See [docs/erganis-product-plan.md](../../docs/erganis-product-plan.md) (Core services and stack).
+See [docs/erganis-product-plan.md](../../docs/erganis-product-plan.md) §6 Core.
 
-## Structure
+## Layout (Phase 0+)
 
-- `api-gateway/` — HTTP routing (Surface + Public APIs)
-- `business-logic/` — Domain services loaded via module manifest
-- `background-jobs/` — pg-boss workers
-- `shared/` — Middleware, utilities
+Hybrid Nest structure — **platform modules** at the top level; inside each module: `controllers/`, `application/`, `domain/`, `infrastructure/`. Shared types live in [`../packages/typescript/`](../packages/typescript/).
+
+```
+services/
+├── src/
+│   ├── main.ts
+│   ├── app.module.ts
+│   └── modules/
+│       ├── auth/              # AuthModule — OIDC, session, JWT, org context
+│       ├── orchestrator/      # OrchestratorModule — operation envelope
+│       ├── module-loader/     # ModuleLoaderModule — manifest load, migrator
+│       ├── surface/           # SurfaceModule — Surface API routes
+│       ├── public-api/        # PublicApiModule — Public API subset
+│       ├── health/            # Health checks (Phase 0)
+│       └── …                  # FileModule, JobModule, etc. as phases land
+├── test/
+└── package.json
+```
+
+Legacy placeholder folders (`api-gateway/`, `business-logic/`, …) were removed — they predated the kickoff Nest layout decision.
 
 ## Technology
 
@@ -29,10 +45,9 @@ Redis is **not required** for v1 (pg-boss uses PostgreSQL).
 
 ## Related
 
-- **core/contracts** — API schemas and SDKs
+- **core/contracts** — API schemas and SDK generation
 - **core/data** — DAL, migrations
-- **core/packages** — Shared libraries
-
-## GitHub
+- **core/packages/typescript** — Shared libraries (no Nest runtime in pure packages)
+- **core/tools** — Codegen and contract tooling
 
 Part of **erganis-core**. Path: `core/services/`

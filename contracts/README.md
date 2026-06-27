@@ -1,22 +1,25 @@
 # Erganis Contracts
 
-**Schemas and auto-generated SDKs** — source of truth for API contracts, module manifests, and generated client libraries.
+**Schemas and generated SDKs** — platform contract source of truth, module manifest schema, and SDK output paths.
 
-## Purpose
+## Who owns what
 
-- **Core API** — `schemas/core/openapi.yaml` (internal API)
-- **Public API** — Generated subset (`x-audience: public`) in `schemas/public/v1/`, etc.
-- **Module manifests** — `schemas/module/`; YAML → JSON via `compile-module-manifest.js`
-- **SDKs** — Auto-generated in `sdk/` (TypeScript, C#, Java, etc. — **multi-language strategy under review**)
+| Layer | Authored by | Managed by Core | Location |
+|-------|-------------|-----------------|----------|
+| **Platform contracts** | Core team | Validate & enforce | `schemas/core/`, envelope/Surface schemas (Phase 0+) |
+| **Module manifest schema** | Core team | Validate on load | `schemas/module/` |
+| **Module domain contracts** | Product/module teams | Register, merge, validate at boundaries | Module repos — e.g. `studio/modules/inventory/openapi/` referenced from manifest `openApiFragment` |
+| **Generated SDKs** | Codegen from OpenAPI | Publish/version with Core | `sdk/typescript/` (first); `sdk/dotnet/` reserved |
 
-Apps (Studio, Agora, Companion) consume the API via live URL or generated SDK — not by referencing Core source directly.
+**Rule:** Modules **develop** domain API fragments and step I/O; Core **manages** the registry, composer, orchestrator boundaries, and platform invariants. Hand-written HTTP clients do not live in app repos.
 
 ## Structure
 
-- `schemas/core/` — Core API spec
-- `schemas/public/v1/` — Generated public API (do not edit by hand)
-- `schemas/module/` — Module manifest schema and examples
-- `sdk/` — Generated SDKs
+- `schemas/core/openapi.yaml` — Core Surface API (single source of truth)
+- `schemas/public/v1/` — Generated public subset (`x-audience: public` only — do not edit by hand)
+- `schemas/module/` — Module manifest JSON Schema, examples, YAML → JSON compile
+- `sdk/typescript/` — Generated TypeScript clients (Phase 0–1)
+- `sdk/dotnet/` — **Reserved** — generated NuGet clients (future)
 - `scripts/generate-public-api.js` — Public API subset generator
 - `scripts/compile-module-manifest.js` — Module YAML → JSON
 
@@ -28,19 +31,17 @@ npm run generate-public
 npm run compile-manifest -- path/to/erganis.module.yaml
 ```
 
-## Multi-language SDKs (review needed)
+## SDK generation
 
-`schemas/core/openapi.yaml` drives generated clients for consumers that are not TypeScript:
+| Target | Path | Status |
+|--------|------|--------|
+| TypeScript | `sdk/typescript/` | First — Phase 0–1 |
+| .NET | `sdk/dotnet/` | Reserved — no codegen until needed |
+| Java | `sdk/java/` | Reserved — future |
 
-| Target | Planned path | Notes |
-|--------|--------------|-------|
-| TypeScript | `sdk/typescript/` | Studio, Agora web, tooling |
-| C# | `sdk/csharp/` | Desktop tools, integrations |
-| Java | `sdk/java/` | Enterprise integrations |
+Codegen orchestrated from [`../tools/`](../tools/) when implemented. See [docs/erganis-product-plan.md](../../docs/erganis-product-plan.md) §6 Contracts & SDKs.
 
-Open questions: codegen tool (openapi-generator vs alternatives), package publish (npm/NuGet/Maven), and how **Public** vs **Surface** API subsets map to each SDK. See [docs/erganis-product-plan.md](../../docs/erganis-product-plan.md).
-
-Module **migrations** in manifest extend the Core database when modules are installed — separate from OpenAPI but part of the same contracts repo.
+Module **migrations** in manifest extend the database when modules are enabled — separate from OpenAPI but validated via the same manifest schema.
 
 Part of **erganis-core**. **Owner:** [enabledtocreate](https://github.com/enabledtocreate)  
 **Path:** `core/contracts/`

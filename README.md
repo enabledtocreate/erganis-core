@@ -6,11 +6,12 @@ Single repo for the **Core** layer of Erganis Platform: contracts, data, infrast
 
 | Folder | Purpose |
 |--------|---------|
-| **contracts/** | Schemas, SDK generation (`sdk/`), core + public API |
+| **contracts/** | Schemas, SDK generation in `contracts/sdk/` (TypeScript first; `dotnet/` reserved) |
 | **data/** | DAL, migrations, SQL |
 | **infrastructure/** | Runtime & deploy; Docker optional |
 | **services/** | NestJS Core runtime, orchestrator, pg-boss |
-| **packages/** | Shared libraries |
+| **packages/** | Hand-maintained shared libraries (`typescript/` now; `dotnet/` reserved) |
+| **tools/** | Contract readers, codegen, module connection generators |
 | **scripts/** | Setup, deploy, dev, migrate, update |
 
 Use **relative paths** between these folders.
