@@ -5,6 +5,7 @@ import { DatabaseModule } from './modules/database/database.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { OrchestratorModule } from './modules/orchestrator/orchestrator.module';
+import { FileModule } from './modules/file/file.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { OrchestratorModule } from './modules/orchestrator/orchestrator.module';
     HealthModule,
     AuthModule,
     OrchestratorModule,
+    FileModule,
   ],
 })
 export class AppModule {}
