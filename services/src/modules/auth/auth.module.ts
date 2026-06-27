@@ -19,6 +19,7 @@ import {
   OIDC_AUTH_PROVIDER,
 } from './infrastructure/oidc-auth.provider';
 import { SessionGuard } from './guards/session.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
   controllers: [AuthController],
@@ -29,6 +30,7 @@ import { SessionGuard } from './guards/session.guard';
     SessionService,
     TokenService,
     SessionGuard,
+    JwtAuthGuard,
     {
       provide: OrgRepository,
       useFactory: (db: DatabaseService) =>
@@ -71,6 +73,6 @@ import { SessionGuard } from './guards/session.guard';
       inject: [ConfigService, MockOidcAuthProvider, HttpOidcAuthProvider],
     },
   ],
-  exports: [AuthService, SessionService, SessionGuard],
+  exports: [AuthService, SessionService, SessionGuard, TokenService, JwtAuthGuard, UserRepository],
 })
 export class AuthModule {}

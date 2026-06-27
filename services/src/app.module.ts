@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { OrchestratorModule } from './modules/orchestrator/orchestrator.module';
 import { FileModule } from './modules/file/file.module';
 import { SurfaceModule } from './modules/surface/surface.module';
+import { PublicApiModule } from './modules/public-api/public-api.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SurfaceModule } from './modules/surface/surface.module';
     OrchestratorModule,
     FileModule,
     SurfaceModule,
+    PublicApiModule,
   ],
 })
 export class AppModule {}
