@@ -22,6 +22,7 @@ import { OrgRepository } from '../auth/infrastructure/org.repository';
 import { UserRepository } from '../auth/infrastructure/user.repository';
 import { EntityLockService } from './application/entity-lock.service';
 import { ModuleAccessService } from '../loader/module-access.service';
+import { PlatformEventService } from '../platform-services/platform-event.service';
 
 export interface ExecuteOperationInput {
   envelope: OperationEnvelope;
@@ -40,6 +41,7 @@ export class OrchestratorService {
     private readonly users: UserRepository,
     private readonly entityLock: EntityLockService,
     private readonly moduleAccess: ModuleAccessService,
+    private readonly platformEvents: PlatformEventService,
   ) {}
 
   async execute(input: ExecuteOperationInput): Promise<OperationResult> {
@@ -201,7 +203,7 @@ export class OrchestratorService {
         }
       }
 
-      return {
+      const result = {
         operationId,
         outcome,
         surfaceId: input.envelope.surfaceId,
@@ -210,6 +212,14 @@ export class OrchestratorService {
         warnings,
         entityVersion,
       };
+
+      await this.platformEvents.recordOperation({
+        result,
+        orgId: org.id,
+        userId: user.id,
+      });
+
+      return result;
     } finally {
       if (usesEntityLock) {
         await this.entityLock.releaseLock(

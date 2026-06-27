@@ -5,13 +5,15 @@ import { AuthModule } from '../auth/auth.module';
 import { OrgRepository } from '../auth/infrastructure/org.repository';
 import { UserRepository } from '../auth/infrastructure/user.repository';
 import { LoaderModule } from '../loader/loader.module';
+import { PlatformServicesModule } from '../platform-services/platform-services.module';
+import { PlatformEventService } from '../platform-services/platform-event.service';
 import { OrchestratorService } from './orchestrator.service';
 import { OperationsController } from './operations.controller';
 import { EntityLockService } from './application/entity-lock.service';
 import { EntityLockRepository } from './infrastructure/entity-lock.repository';
 
 @Module({
-  imports: [LoaderModule, AuthModule],
+  imports: [LoaderModule, AuthModule, PlatformServicesModule],
   controllers: [OperationsController],
   providers: [
     OrchestratorService,

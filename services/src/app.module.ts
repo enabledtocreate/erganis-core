@@ -8,6 +8,7 @@ import { OrchestratorModule } from './modules/orchestrator/orchestrator.module';
 import { FileModule } from './modules/file/file.module';
 import { SurfaceModule } from './modules/surface/surface.module';
 import { PublicApiModule } from './modules/public-api/public-api.module';
+import { PlatformServicesModule } from './modules/platform-services/platform-services.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PublicApiModule } from './modules/public-api/public-api.module';
     FileModule,
     SurfaceModule,
     PublicApiModule,
+    PlatformServicesModule,
   ],
 })
 export class AppModule {}

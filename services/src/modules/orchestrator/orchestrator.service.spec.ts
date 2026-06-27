@@ -79,6 +79,7 @@ describe('OrchestratorService', () => {
       users as never,
       entityLock as never,
       { assertOperationAllowed: jest.fn() } as never,
+      { recordOperation: jest.fn() } as never,
     );
     (service as unknown as { unitOfWorkFactory: unknown }).unitOfWorkFactory =
       unitOfWorkFactory;
@@ -175,4 +176,4 @@ describe('OrchestratorService', () => {
     expect(result.steps[1].status).toBe('failed');
   });
 });
-
+
