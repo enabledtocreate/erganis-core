@@ -1,3 +1,5 @@
+import path from 'path';
+
 export default () => ({
   port: parseInt(process.env.API_PORT ?? '5000', 10),
   host: process.env.API_HOST ?? '0.0.0.0',
@@ -13,4 +15,7 @@ export default () => ({
   authLocalEnabled: (process.env.AUTH_LOCAL_ENABLED ?? 'true') === 'true',
   authOidcMock: (process.env.AUTH_OIDC_MOCK ?? 'false') === 'true',
   migrationsDir: process.env.MIGRATIONS_DIR ?? '../data/migrations',
+  modulesRoot:
+    process.env.MODULES_ROOT ??
+    path.resolve(process.cwd(), '../../studio/modules'),
 });

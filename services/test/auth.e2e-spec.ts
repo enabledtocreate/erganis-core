@@ -17,6 +17,7 @@ describeWithDb('Auth (e2e)', () => {
   beforeAll(async () => {
     pool = new Pool({ connectionString: process.env.DATABASE_URL });
     process.env.AUTH_OIDC_MOCK = 'true';
+    process.env.AUTH_LOCAL_ENABLED = 'true';
     process.env.JWT_SECRET = process.env.JWT_SECRET ?? 'e2e-test-secret';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({

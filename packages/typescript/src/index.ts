@@ -13,3 +13,5 @@ export interface DatabaseHealthResponse extends HealthResponse {
 export * from './public-id';
 export * from './auth-types';
 export * from './dal';
+export * from './orchestration';
+export * from './modules';

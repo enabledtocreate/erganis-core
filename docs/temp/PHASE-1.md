@@ -2,7 +2,7 @@
 
 Phase 1 adds OIDC v1 with local fallback, HttpOnly session cookies (web), JWT access tokens (public API), org/users/roles, and domain JIT provisioning.
 
-**Architecture reference (for review):** [`AUTH-ARCHITECTURE.md`](./AUTH-ARCHITECTURE.md)
+**Architecture reference (for review):** [`CORE-ARCHITECTURE.md`](./CORE-ARCHITECTURE.md)
 
 ## Delivered
 

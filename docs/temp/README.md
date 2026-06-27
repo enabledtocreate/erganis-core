@@ -6,8 +6,8 @@ Staging area for Core design notes, implementation logs, and document fragments 
 
 - Phase 0–3 implementation notes (Nest scaffold, auth, loader, orchestrator)
 - Draft ADRs and technical spikes
-- Architecture references (e.g. [`AUTH-ARCHITECTURE.md`](./AUTH-ARCHITECTURE.md) — Phase 1 auth review)
-- Phase plans (e.g. [`PHASE-2.md`](./PHASE-2.md) — loader + DAL + envelope smoke)
+- Architecture references — [`CORE-ARCHITECTURE.md`](./CORE-ARCHITECTURE.md) (C0–C2 done; **§11 implementation examples**)
+- Phase plans — [`PHASE-2.md`](./PHASE-2.md); product plan [§6 Core remaining](../../../docs/erganis-product-plan.md#core-remaining-work), [§7 Studio modules](../../../docs/erganis-product-plan.md#studio-module-implementation-phases)
 - OpenAPI / envelope JSON Schema working notes
 - Content destined for APM fragments (paste here first, promote via APM later)
 
