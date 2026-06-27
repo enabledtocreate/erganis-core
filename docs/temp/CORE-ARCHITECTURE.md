@@ -53,7 +53,7 @@ This document explains how Erganis Core is structured: shared types, database sc
 | **0 — Shell** | Runnable Core API + Postgres | Nest app, `HealthModule`, `DatabaseModule`, `MigrationRunner` |
 | **1 — Auth** | Platform identity | OIDC + local fallback, session cookie, JWT, org/membership/roles, domain JIT |
 | **C2 — Loader + envelope** | Extensible modules + transactional saves | Manifest discovery, module migrations, `OrchestratorService`, authenticated `POST /operations/execute` |
-| **C3–C11 — Remaining** | Platform hardening | Locks, FileStore, Surface API, migration validation, module enable/disable — see product plan §6 |
+| **C3–C11 — Remaining** | Platform hardening | **Complete** — locks, FileStore, Surface API, migration validation, module enable/disable, public API, platform events, composition, sync stub |
 
 **Studio modules** (Documents, Inventory, …) are **not Core phases** — they ship as [Studio slices](../../../docs/erganis-product-plan.md#studio-module-implementation-phases) (S-D1, S-I1, …).
 
@@ -424,7 +424,13 @@ imports: [
   DatabaseModule,
   HealthModule,
   AuthModule,
-  OrchestratorModule,  // imports LoaderModule + AuthModule
+  OrchestratorModule,
+  FileModule,
+  SurfaceModule,
+  PublicApiModule,
+  PlatformServicesModule,
+  CompositionModule,
+  SyncModule,
 ]
 ```
 
@@ -432,7 +438,7 @@ imports: [
 
 - Wires auth repositories via `createPoolRepository`.
 - Binds OIDC mock vs HTTP provider from config.
-- **Exports:** `AuthService`, `SessionService`, `SessionGuard`.
+- **Exports:** `AuthService`, `SessionService`, `SessionGuard`, `TokenService`, `JwtAuthGuard`, `UserRepository`.
 
 ### `LoaderModule`
 
@@ -649,7 +655,7 @@ Core repos: **`PgRepository`** + pool. Module handlers: **`BaseRepository`** + `
 |------|------------|
 | Envelope save | **C2** (done) |
 | File bytes | **C6** FileStore |
-| Surface UI load | **C7** + Studio **S0** |
+| Surface UI load | **C7** (done) + Studio **S0** |
 | Multi-step partial | **C3** |
 | Third-party | **C4** migration validation |
 
@@ -676,12 +682,14 @@ cd ../../../core/services && npm run start:dev
 | Topic | Current behavior | Likely follow-up |
 |-------|------------------|------------------|
 | Role management | Admin bootstrap only | Studio admin UI |
-| JWT API guard | Sign/verify exists; not global on all routes | Core **C8** |
+| JWT API guard | **C8** — `JwtAuthGuard` on `/public/v1/*` | Expand to additional public routes |
 | Refresh tokens / MFA | Not implemented | Product decision |
 | SAML | Type only | New provider adapter |
-| Module enable/disable | All discovered modules enabled | Core **C5** |
-| Module migration validation | Runner only; no SQL allowlist yet | Core **C4** |
-| Envelope JSON Schema | TypeScript types only | Core **C3** |
+| Module enable/disable | **C5** (done) | Studio admin UI |
+| Module migration validation | **C4** (done) | — |
+| Envelope JSON Schema | **C3** (done) | — |
+| Operation audit / outbox | **C9** (done) | Outbox publisher worker |
+| Sync API | **C11** in-memory stub | Persist via entity locks + module data |
 | Documents module | Not started | Studio **S-D1** + Core **C6** |
 | Compensation / rollback across modules | Required DB failure rolls back transaction | Multi-step partial outcomes (Inventory) |
 

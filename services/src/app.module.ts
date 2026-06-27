@@ -10,6 +10,7 @@ import { SurfaceModule } from './modules/surface/surface.module';
 import { PublicApiModule } from './modules/public-api/public-api.module';
 import { PlatformServicesModule } from './modules/platform-services/platform-services.module';
 import { CompositionModule } from './modules/composition/composition.module';
+import { SyncModule } from './modules/sync/sync.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CompositionModule } from './modules/composition/composition.module';
     PublicApiModule,
     PlatformServicesModule,
     CompositionModule,
+    SyncModule,
   ],
 })
 export class AppModule {}
