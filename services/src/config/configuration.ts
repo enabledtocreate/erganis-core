@@ -19,4 +19,9 @@ export default () => ({
     process.env.MODULES_ROOT ??
     path.resolve(process.cwd(), '../../studio/modules'),
   entityLockTtlSeconds: parseInt(process.env.ENTITY_LOCK_TTL_SECONDS ?? '300', 10),
+  jobsEnabled: (process.env.JOBS_ENABLED ?? 'true') === 'true',
+  pgBossSchema: process.env.PGBOSS_SCHEMA ?? 'pgboss',
+  outboxEnabled: (process.env.OUTBOX_ENABLED ?? 'true') === 'true',
+  outboxPollIntervalMs: parseInt(process.env.OUTBOX_POLL_INTERVAL_MS ?? '2000', 10),
+  outboxBatchSize: parseInt(process.env.OUTBOX_BATCH_SIZE ?? '25', 10),
 });

@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { OperationResult } from '@erganis/platform';
+import { JobQueueService } from '../jobs/job-queue.service';
+import { PLATFORM_JOBS } from '../jobs/platform-jobs';
 import {
-  JobQueueRepository,
   OperationLogRepository,
   OutboxRepository,
 } from './platform-repositories';
@@ -11,7 +12,7 @@ export class PlatformEventService {
   constructor(
     private readonly operationLog: OperationLogRepository,
     private readonly outbox: OutboxRepository,
-    private readonly jobs: JobQueueRepository,
+    private readonly jobs: JobQueueService,
   ) {}
 
   async recordOperation(input: {
@@ -29,6 +30,7 @@ export class PlatformEventService {
     });
     await this.outbox.enqueue('operation.completed', {
       operationId: input.result.operationId,
+      orgId: input.orgId,
       outcome: input.result.outcome,
       surfaceId: input.result.surfaceId,
       action: input.result.action,
@@ -36,6 +38,10 @@ export class PlatformEventService {
   }
 
   async enqueueJob(jobType: string, payload: Record<string, unknown>): Promise<void> {
-    await this.jobs.enqueue(jobType, payload);
+    await this.jobs.send(jobType, payload);
+  }
+
+  async enqueueSearchIndex(payload: Record<string, unknown>): Promise<void> {
+    await this.jobs.send(PLATFORM_JOBS.searchIndex, payload);
   }
 }

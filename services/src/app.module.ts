@@ -11,6 +11,9 @@ import { PublicApiModule } from './modules/public-api/public-api.module';
 import { PlatformServicesModule } from './modules/platform-services/platform-services.module';
 import { CompositionModule } from './modules/composition/composition.module';
 import { SyncModule } from './modules/sync/sync.module';
+import { OutboxModule } from './modules/outbox/outbox.module';
+import { JobModule } from './modules/jobs/job.module';
+import { SearchModule } from './modules/search/search.module';
 
 @Module({
   imports: [
@@ -28,6 +31,9 @@ import { SyncModule } from './modules/sync/sync.module';
     PlatformServicesModule,
     CompositionModule,
     SyncModule,
+    JobModule,
+    OutboxModule,
+    SearchModule,
   ],
 })
 export class AppModule {}

@@ -1,14 +1,16 @@
 import { Module } from '@nestjs/common';
 import { createPoolRepository } from '@erganis/dal-postgres';
+import { DatabaseModule } from '../database/database.module';
 import { DatabaseService } from '../database/database.service';
+import { JobModule } from '../jobs/job.module';
 import {
-  JobQueueRepository,
   OperationLogRepository,
   OutboxRepository,
 } from './platform-repositories';
 import { PlatformEventService } from './platform-event.service';
 
 @Module({
+  imports: [JobModule, DatabaseModule],
   providers: [
     PlatformEventService,
     {
@@ -23,13 +25,7 @@ import { PlatformEventService } from './platform-event.service';
         createPoolRepository(OutboxRepository, db.getPool()),
       inject: [DatabaseService],
     },
-    {
-      provide: JobQueueRepository,
-      useFactory: (db: DatabaseService) =>
-        createPoolRepository(JobQueueRepository, db.getPool()),
-      inject: [DatabaseService],
-    },
   ],
-  exports: [PlatformEventService],
+  exports: [PlatformEventService, OutboxRepository],
 })
 export class PlatformServicesModule {}

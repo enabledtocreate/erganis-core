@@ -15,6 +15,17 @@ export interface ModuleManifestMigration {
   path: string;
 }
 
+export interface ModuleManifestJob {
+  jobId: string;
+  handler: string;
+  schedule?: string;
+}
+
+export interface ModuleManifestEvent {
+  eventType: string;
+  handler: string;
+}
+
 export interface ModuleManifest {
   id: string;
   name: string;
@@ -24,6 +35,8 @@ export interface ModuleManifest {
   entryPoint: string;
   contributions?: {
     operations?: ModuleManifestOperation[];
+    jobs?: ModuleManifestJob[];
+    events?: ModuleManifestEvent[];
   };
   migrations?: ModuleManifestMigration[];
 }

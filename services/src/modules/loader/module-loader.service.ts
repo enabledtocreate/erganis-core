@@ -3,9 +3,12 @@ import { createRequire } from 'module';
 import path from 'path';
 import {
   DiscoveredModule,
+  JobHandler,
+  JobHandlerRegistry,
   ModuleManifestOperation,
   StepHandler,
   StepHandlerRegistry,
+  jobHandlerKey,
   stepHandlerKey,
 } from '@erganis/platform';
 import { DatabaseService } from '../database/database.service';
@@ -17,12 +20,18 @@ export interface RegisteredModule {
   manifest: DiscoveredModule['manifest'];
   rootDir: string;
   operations: ModuleManifestOperation[];
+  jobs: NonNullable<DiscoveredModule['manifest']['contributions']>['jobs'];
 }
 
 @Injectable()
 export class ModuleLoaderService implements OnApplicationBootstrap {
   private readonly handlers: StepHandlerRegistry = new Map();
+  private readonly jobHandlers: JobHandlerRegistry = new Map();
   private readonly modules: RegisteredModule[] = [];
+  private readyResolve!: () => void;
+  private readonly ready = new Promise<void>((resolve) => {
+    this.readyResolve = resolve;
+  });
 
   constructor(
     private readonly discovery: ModuleDiscoveryService,
@@ -33,13 +42,20 @@ export class ModuleLoaderService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap(): Promise<void> {
     if (!this.database.isConfigured()) {
+      this.readyResolve();
       return;
     }
     await this.loadModules();
+    this.readyResolve();
+  }
+
+  whenReady(): Promise<void> {
+    return this.ready;
   }
 
   async loadModules(): Promise<void> {
     this.handlers.clear();
+    this.jobHandlers.clear();
     this.modules.length = 0;
 
     const discovered = await this.discovery.discover();
@@ -47,16 +63,22 @@ export class ModuleLoaderService implements OnApplicationBootstrap {
       await this.migrations.applyModuleMigrations(mod);
       await this.registry.upsertEnabled(mod.manifest.id, mod.manifest.version);
       await this.loadHandlers(mod);
+      await this.loadJobHandlers(mod);
       this.modules.push({
         manifest: mod.manifest,
         rootDir: mod.rootDir,
         operations: mod.manifest.contributions?.operations ?? [],
+        jobs: mod.manifest.contributions?.jobs ?? [],
       });
     }
   }
 
   getHandlers(): StepHandlerRegistry {
     return this.handlers;
+  }
+
+  getJobHandlers(): JobHandlerRegistry {
+    return this.jobHandlers;
   }
 
   getEnabledModules(): RegisteredModule[] {
@@ -76,6 +98,33 @@ export class ModuleLoaderService implements OnApplicationBootstrap {
       }
       this.handlers.set(stepHandlerKey(mod.manifest.id, op.handler), handler);
     }
+  }
+
+  private async loadJobHandlers(mod: DiscoveredModule): Promise<void> {
+    const entryPath = path.resolve(mod.rootDir, mod.manifest.entryPoint);
+    const entry = this.loadEntryModule(mod.rootDir, entryPath);
+
+    for (const job of mod.manifest.contributions?.jobs ?? []) {
+      const handler = this.resolveJobHandler(entry, job.handler);
+      if (!handler) {
+        throw new Error(
+          `Job handler ${job.handler} not exported from ${mod.manifest.entryPoint}`,
+        );
+      }
+      this.jobHandlers.set(jobHandlerKey(mod.manifest.id, job.handler), handler);
+    }
+  }
+
+  private resolveJobHandler(
+    entry: Record<string, unknown>,
+    handlerName: string,
+  ): JobHandler | undefined {
+    const direct = entry[handlerName];
+    if (typeof direct === 'function') {
+      return direct as JobHandler;
+    }
+    const jobs = entry.jobs as Record<string, JobHandler> | undefined;
+    return jobs?.[handlerName];
   }
 
   private resolveHandler(

@@ -45,6 +45,34 @@ export class OutboxRepository extends PgRepository {
       [eventType, JSON.stringify(payload)],
     );
   }
+
+  async fetchPending(
+    limit: number,
+  ): Promise<Array<{ id: string; eventType: string; payload: Record<string, unknown> }>> {
+    return this.queryMany(
+      `SELECT id, event_type, payload
+       FROM platform.outbox_events
+       WHERE published = false
+       ORDER BY created_at ASC
+       LIMIT $1`,
+      [limit],
+      (row) => ({
+        id: String(row.id),
+        eventType: String(row.event_type),
+        payload: row.payload as Record<string, unknown>,
+      }),
+    );
+  }
+
+  async markPublished(ids: string[]): Promise<void> {
+    if (ids.length === 0) {
+      return;
+    }
+    await this.execute(
+      `UPDATE platform.outbox_events SET published = true WHERE id = ANY($1::uuid[])`,
+      [ids],
+    );
+  }
 }
 
 @Injectable()
@@ -53,6 +81,7 @@ export class JobQueueRepository extends PgRepository {
     super(pool);
   }
 
+  /** @deprecated Use pg-boss via {@link JobQueueService} instead. */
   async enqueue(jobType: string, payload: Record<string, unknown>): Promise<void> {
     await this.execute(
       `INSERT INTO platform.job_queue (job_type, payload) VALUES ($1, $2::jsonb)`,

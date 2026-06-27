@@ -431,8 +431,21 @@ imports: [
   PlatformServicesModule,
   CompositionModule,
   SyncModule,
+  JobModule,
+  OutboxModule,
+  SearchModule,
 ]
 ```
+
+### Platform services (C9)
+
+| Module | Responsibility |
+|--------|----------------|
+| `PlatformServicesModule` | Operation audit log + outbox enqueue |
+| `JobModule` | pg-boss runtime; module job handler registration |
+| `OutboxModule` | Polls `outbox_events`, dispatches to `EventDispatcher` |
+| `EventModule` | Registers platform event handlers (e.g. `operation.completed`) |
+| `SearchModule` | `platform.search_index` FTS upsert + `GET /search` |
 
 ### `AuthModule`
 
@@ -469,6 +482,9 @@ From `services/.env.example` → `configuration.ts`:
 | `MIGRATIONS_DIR` | `../data/migrations` | Platform SQL path |
 | `RUN_MIGRATIONS_ON_START` | `true` | Auto-run platform migrations |
 | `MODULES_ROOT` | `../../studio/modules` | Module discovery root |
+| `JOBS_ENABLED` | `true` | pg-boss job runner |
+| `OUTBOX_ENABLED` | `true` | Outbox poller |
+| `OUTBOX_POLL_INTERVAL_MS` | `2000` | Outbox poll interval |
 | `API_PORT` / `API_HOST` | `5000` / `0.0.0.0` | HTTP bind |
 
 ---
@@ -688,7 +704,9 @@ cd ../../../core/services && npm run start:dev
 | Module enable/disable | **C5** (done) | Studio admin UI |
 | Module migration validation | **C4** (done) | — |
 | Envelope JSON Schema | **C3** (done) | — |
-| Operation audit / outbox | **C9** (done) | Outbox publisher worker |
+| Operation audit / outbox | **C9** (done) | External webhook publisher |
+| pg-boss jobs | **C9** (done) | Manifest `schedule` cron |
+| Search FTS | **C9** (done) | Cross-entity unified search UI |
 | Sync API | **C11** in-memory stub | Persist via entity locks + module data |
 | Documents module | Not started | Studio **S-D1** + Core **C6** |
 | Compensation / rollback across modules | Required DB failure rolls back transaction | Multi-step partial outcomes (Inventory) |
