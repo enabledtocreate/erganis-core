@@ -4,4 +4,13 @@ export default () => ({
   databaseUrl: process.env.DATABASE_URL ?? '',
   dataRoot: process.env.ERGANIS_DATA_ROOT ?? '',
   nodeEnv: process.env.NODE_ENV ?? 'development',
+  jwtSecret: process.env.JWT_SECRET ?? 'dev-only-change-in-production',
+  sessionCookieName: process.env.SESSION_COOKIE_NAME ?? 'erganis_session',
+  sessionTtlSeconds: parseInt(process.env.SESSION_TTL_SECONDS ?? '86400', 10),
+  jwtTtlSeconds: parseInt(process.env.JWT_TTL_SECONDS ?? '3600', 10),
+  oidcCallbackBaseUrl:
+    process.env.OIDC_CALLBACK_BASE_URL ?? 'http://localhost:5000',
+  authLocalEnabled: (process.env.AUTH_LOCAL_ENABLED ?? 'true') === 'true',
+  authOidcMock: (process.env.AUTH_OIDC_MOCK ?? 'false') === 'true',
+  migrationsDir: process.env.MIGRATIONS_DIR ?? '../data/migrations',
 });

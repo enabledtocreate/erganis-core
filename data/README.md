@@ -4,7 +4,7 @@
 
 ## Structure
 
-- `dal/` — Database Abstraction Layer (DAL) — data access code
+- `dal/` — **`@erganis/dal-postgres`** — PostgreSQL adapters (`PgRepository`, `PgUnitOfWorkFactory`, Nest wiring). Interfaces and `BaseRepository` live in [`../packages/typescript/`](../packages/typescript/).
 - `migrations/` — Database migration scripts (versioned)
 - `sql/` — SQL logic, stored procedures, views
 

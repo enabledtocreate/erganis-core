@@ -1,7 +1,7 @@
 {
-  "name": "@erganis/platform",
+  "name": "@erganis/dal-postgres",
   "version": "0.1.0",
-  "description": "Shared TypeScript types and utilities for Erganis Core (no Nest runtime)",
+  "description": "PostgreSQL DAL adapters for Erganis — BaseRepository wiring, UnitOfWork, Nest helpers",
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,14 +9,16 @@
     "build": "tsc -p tsconfig.json",
     "test": "jest"
   },
+  "dependencies": {
+    "@erganis/platform": "file:../../packages/typescript",
+    "pg": "^8.13.1"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.14",
+    "@types/pg": "^8.11.10",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.7.3"
-  },
-  "dependencies": {
-    "ulid": "^2.3.0"
   },
   "jest": {
     "preset": "ts-jest",
