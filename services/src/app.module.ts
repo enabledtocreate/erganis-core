@@ -6,6 +6,7 @@ import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { OrchestratorModule } from './modules/orchestrator/orchestrator.module';
 import { FileModule } from './modules/file/file.module';
+import { SurfaceModule } from './modules/surface/surface.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FileModule } from './modules/file/file.module';
     AuthModule,
     OrchestratorModule,
     FileModule,
+    SurfaceModule,
   ],
 })
 export class AppModule {}
