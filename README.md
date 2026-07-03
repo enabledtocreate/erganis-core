@@ -24,7 +24,7 @@ docker compose -f infrastructure/docker/docker-compose.yml up -d postgres   # op
 cd services && cp .env.example .env && npm run start:dev
 ```
 
-**Phase 0 complete** — Nest shell, health endpoints, Postgres readiness. See [`docs/temp/PHASE-0.md`](docs/temp/PHASE-0.md).
+**Core C0–C13 complete** — See [`docs/temp/CORE-IMPLEMENTATION-PLAN.md`](docs/temp/CORE-IMPLEMENTATION-PLAN.md) and [`CORE-ARCHITECTURE.md`](docs/temp/CORE-ARCHITECTURE.md).
 
 ## Apps
 

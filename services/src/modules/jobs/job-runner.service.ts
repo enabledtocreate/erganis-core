@@ -1,5 +1,6 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ModuleLoaderService } from '../loader/module-loader.service';
+import { CodesProviderService } from '../codes/codes-provider.service';
 import { SearchService } from '../search/search.service';
 import { JobQueueService } from './job-queue.service';
 import { PLATFORM_JOBS } from './platform-jobs';
@@ -10,6 +11,7 @@ export class JobRunnerService implements OnApplicationBootstrap {
     private readonly jobs: JobQueueService,
     private readonly moduleLoader: ModuleLoaderService,
     private readonly search: SearchService,
+    private readonly codes: CodesProviderService,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -24,6 +26,15 @@ export class JobRunnerService implements OnApplicationBootstrap {
 
     await this.jobs.registerWorker(PLATFORM_JOBS.searchIndex, async (payload) => {
       await this.search.upsertDocument(payload);
+    });
+
+    await this.jobs.registerWorker(PLATFORM_JOBS.codesSync, async (payload) => {
+      const rules = payload.rules;
+      if (Array.isArray(rules) && rules.length > 0) {
+        await this.codes.importRules(String(payload.source ?? 'external'), rules as never);
+        return;
+      }
+      await this.codes.ensureSeedData();
     });
 
     for (const [jobKey, handler] of this.moduleLoader.getJobHandlers()) {

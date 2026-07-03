@@ -1,7 +1,7 @@
 # Erganis Core — Architecture Reference
 
-> **Status:** Core **C0–C2 complete** (shell, auth, loader, orchestrator). **Next:** Core C3–C11 ([product plan §6](../../../docs/erganis-product-plan.md#core-remaining-work)), then Studio modules per slice ([§7](../../../docs/erganis-product-plan.md#studio-module-implementation-phases)).  
-> **Companions:** [`PHASE-1.md`](./PHASE-1.md) · [`PHASE-2.md`](./PHASE-2.md) · [`data/dal/README.md`](../../data/dal/README.md)
+> **Status:** Core **C0–C11 complete**. **Next:** [Studio modules](../../studio/docs/STUDIO-IMPLEMENTATION-PLAN.md) per slice ([product plan §7](../../../docs/erganis-product-plan.md#studio-module-implementation-phases)).  
+> **Companions:** [`CORE-IMPLEMENTATION-PLAN.md`](./CORE-IMPLEMENTATION-PLAN.md) · [`data/dal/README.md`](../../data/dal/README.md)
 
 This document explains how Erganis Core is structured: shared types, database schemas, Nest modules, authentication, module loading, and operation orchestration. It is written for reviewers who may not be Nest or Postgres experts.
 
@@ -410,7 +410,7 @@ Example envelope body:
 
 Full worked examples — manifest, migration SQL, HTTP curl, orchestrator resolution, and new-module checklist — are in [§11 Implementation examples](#11-implementation-examples).
 
-See also [`data/dal/README.md`](../../data/dal/README.md) and [`PHASE-2.md`](./PHASE-2.md).
+See also [`data/dal/README.md`](../../data/dal/README.md) and [`CORE-IMPLEMENTATION-PLAN.md`](./CORE-IMPLEMENTATION-PLAN.md) (C2).
 
 ---
 
@@ -434,10 +434,11 @@ imports: [
   JobModule,
   OutboxModule,
   SearchModule,
+  CodesModule,
 ]
 ```
 
-### Platform services (C9)
+### Platform services (C9–C13)
 
 | Module | Responsibility |
 |--------|----------------|
@@ -446,6 +447,8 @@ imports: [
 | `OutboxModule` | Polls `outbox_events`, dispatches to `EventDispatcher` |
 | `EventModule` | Registers platform event handlers (e.g. `operation.completed`) |
 | `SearchModule` | `platform.search_index` FTS upsert + `GET /search` |
+| `CompositionModule` | Slots (C10) + theme tokens/skins/preview (C12) |
+| `CodesModule` | IBC / accessibility rule packs + `GET /codes/rules` (C13) |
 
 ### `AuthModule`
 

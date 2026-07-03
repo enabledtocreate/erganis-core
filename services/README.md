@@ -74,7 +74,7 @@ npm run start:dev
 | `npm run test:e2e` | HTTP e2e tests (supertest) |
 | `npm run start:dev` | Watch mode |
 
-See [`../docs/temp/PHASE-0.md`](../docs/temp/PHASE-0.md) for implementation notes.
+See [`../docs/temp/CORE-IMPLEMENTATION-PLAN.md`](../docs/temp/CORE-IMPLEMENTATION-PLAN.md) for implementation phases (C0–C11).
 
 ## Related
 
