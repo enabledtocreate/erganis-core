@@ -434,11 +434,10 @@ imports: [
   JobModule,
   OutboxModule,
   SearchModule,
-  CodesModule,
 ]
 ```
 
-### Platform services (C9–C13)
+### Platform services (C9–C12)
 
 | Module | Responsibility |
 |--------|----------------|
@@ -448,7 +447,6 @@ imports: [
 | `EventModule` | Registers platform event handlers (e.g. `operation.completed`) |
 | `SearchModule` | `platform.search_index` FTS upsert + `GET /search` |
 | `CompositionModule` | Slots (C10) + theme tokens/skins/preview (C12) |
-| `CodesModule` | IBC / accessibility rule packs + `GET /codes/rules` (C13) |
 
 ### `AuthModule`
 

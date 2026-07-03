@@ -1,6 +1,6 @@
-# Erganis Core — Implementation Plan (C0–C13)
+# Erganis Core — Implementation Plan (C0–C12)
 
-> **Status:** **C0–C13 complete.**  
+> **Status:** **C0–C12 complete.**  
 > **Architecture:** [`CORE-ARCHITECTURE.md`](./CORE-ARCHITECTURE.md) · **Product plan:** [§6 Core](../../../docs/erganis-product-plan.md#6-core)  
 > **Other plans:** [Studio](../../studio/docs/STUDIO-IMPLEMENTATION-PLAN.md) · [Index](../../../docs/IMPLEMENTATION-PLANS.md)
 
@@ -25,7 +25,6 @@ This document consolidates all Core implementation phases (formerly `PHASE-0.md`
 | **C10** | UI composition | Done | C9 |
 | **C11** | Sync API (stub) | Done | C10 |
 | **C12** | UI skin & theme preview | Done | C10, S0 |
-| **C13** | Codes provider adapter | Done | C9, C12 |
 
 ```mermaid
 flowchart LR
@@ -33,11 +32,9 @@ flowchart LR
   C2 --> C3 --> C4 --> C5
   C2 --> C6 --> C7 --> C8 --> C9 --> C10 --> C11
   C10 --> C12
-  C9 --> C13
-  C12 --> C13
 ```
 
-**Domain modules** (Documents, Inventory, Build, …) are **not** Core phases — see [Studio implementation plan](../../studio/docs/STUDIO-IMPLEMENTATION-PLAN.md).
+**Domain modules** (Documents, Inventory, Build, **Codes**, …) are **not** Core phases — see [Studio implementation plan](../../studio/docs/STUDIO-IMPLEMENTATION-PLAN.md). Building-code logic (IBC / accessibility) is **Build module** territory, not a Core platform service.
 
 ---
 
@@ -338,25 +335,11 @@ Default slots: `shell.header`, `shell.sidebar`, `shell.main`, `dashboard.widget`
 
 ---
 
-## C13 — Codes Provider Adapter
+## Building codes — not a Core phase
 
-**Delivers:** Versioned IBC / accessibility rule packs with sync job hook for Build (S-B2/S-B3).
+Building-code logic (IBC, accessibility) is **Studio Build module** domain logic, **not** a Core platform service. Codes are business rules specific to Build's designer workflows, so they live in `studio/modules/build/` and own their schema, rule storage, and any external code-service integration — the same way any module owns its domain.
 
-| Unit | Location |
-|------|----------|
-| `008_platform_codes.sql` | `code_rule_packs`, `code_sync_log` |
-| `CodeRuleRepository` | `codes/codes.repository.ts` |
-| `CodesProviderService` | Query + seed + import |
-| `CodesController` | `GET /codes/rules?jurisdiction=&edition=&topic=&ruleFamily=` |
-| `platform.codes.sync` | pg-boss job — import payload rules or re-seed |
-
-Bootstrap seed includes sample IBC occupancy/egress and accessibility clearance rules (2021/2017 editions). External API sync via job payload `{ source, rules: [...] }`.
-
-### Deferred (post-Core)
-
-- Transactional outbox in orchestrator transaction
-- External code API vendor integration
-- C11 persistent sync backing store
+See Studio plan **S-B2 (Codes)** and **S-B3 (space analysis)**. Build uses standard module primitives (own schema + `migrations/`, orchestrator handlers, optional module `contributions.jobs` for external sync) rather than a Core-owned adapter.
 
 ---
 
