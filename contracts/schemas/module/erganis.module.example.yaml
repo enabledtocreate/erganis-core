@@ -38,8 +38,12 @@ contributions:
       handler: ./jobs/reindex.js
 
   ui:
-    - slot: studio.sidebar
+    - slot: shell.sidebar
       component: ./ui/InventoryNav.tsx
+
+  layout:
+    - surfaceId: product
+      path: ./ui/layouts/product.layout.json
 
 migrations:
   - version: "0.1.0"

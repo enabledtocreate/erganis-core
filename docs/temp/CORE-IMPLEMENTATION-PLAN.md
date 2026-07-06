@@ -1,7 +1,7 @@
-# Erganis Core — Implementation Plan (C0–C12)
+# Erganis Core — Implementation Plan (C0–C16)
 
-> **Status:** **C0–C12 complete.**  
-> **Architecture:** [`CORE-ARCHITECTURE.md`](./CORE-ARCHITECTURE.md) · **Product plan:** [§6 Core](../../../docs/erganis-product-plan.md#6-core)  
+> **Status:** **C0–C12 complete.** **C13–C16 planned.**  
+> **Architecture:** [`CORE-ARCHITECTURE.md`](./CORE-ARCHITECTURE.md) · **UI:** [`UI-ARCHITECTURE.md`](../../../ui/docs/UI-ARCHITECTURE.md) · **Product plan:** [§6 Core](../../../docs/erganis-product-plan.md#6-core)  
 > **Other plans:** [Studio](../../studio/docs/STUDIO-IMPLEMENTATION-PLAN.md) · [Index](../../../docs/IMPLEMENTATION-PLANS.md)
 
 This document consolidates all Core implementation phases (formerly `PHASE-0.md` … `PHASE-C11.md`) into a single reference.
@@ -25,6 +25,10 @@ This document consolidates all Core implementation phases (formerly `PHASE-0.md`
 | **C10** | UI composition | Done | C9 |
 | **C11** | Sync API (stub) | Done | C10 |
 | **C12** | UI skin & theme preview | Done | C10, S0 |
+| **C13** | Agent contract layer | Planned | C7, C10 |
+| **C14** | Workflow definitions + titled nodes | Planned | C3, C9 |
+| **C15** | Contract / SDK toolchain | Planned | C8, contracts |
+| **C16** | UI composition (erganis-ui coordination) | Planned | C10, C12, UI repo |
 
 ```mermaid
 flowchart LR
@@ -32,6 +36,10 @@ flowchart LR
   C2 --> C3 --> C4 --> C5
   C2 --> C6 --> C7 --> C8 --> C9 --> C10 --> C11
   C10 --> C12
+  C7 --> C13
+  C9 --> C14
+  C8 --> C15
+  C12 --> C16
 ```
 
 **Domain modules** (Documents, Inventory, Build, **Codes**, …) are **not** Core phases — see [Studio implementation plan](../../studio/docs/STUDIO-IMPLEMENTATION-PLAN.md). Building-code logic (IBC / accessibility) is **Build module** territory, not a Core platform service.
@@ -332,6 +340,74 @@ Default slots: `shell.header`, `shell.sidebar`, `shell.main`, `dashboard.widget`
 | `GET /composition/theme?orgSlug=` | Resolved theme for org |
 | `POST /composition/theme/preview` | Ephemeral preview from draft JSON |
 | `PUT /composition/theme?orgSlug=` | Persist org overrides |
+
+---
+
+## C13 — Agent Contract Layer
+
+**Delivers:** Structured JSON vocabulary for AI agents and tool clients — same orchestrator/Surface paths as human UI, plus discovery and typed payloads.
+
+| Unit | Purpose |
+|------|---------|
+| Per-surface JSON Schema | Typed `load` / `save` payload shapes beyond free-form `payload` |
+| `GET /agent/capabilities?orgSlug=` | Machine-readable index: surfaces, actions, enabled modules (respects C5) |
+| Capability manifest | Surfaces, actions, failure classes, required fields |
+| Structured errors | Stable `code`, `message`, `field`, `recoverable` for agent retry |
+
+**Principle:** Agents use **operation envelope** and **Surface API** — no parallel mutation API.
+
+**Blocks:** Nomodeion agent-assisted study (optional); external integrator tooling.
+
+---
+
+## C14 — Workflow Definitions & Titled Nodes
+
+**Delivers:** Long-running pipelines with human- and agent-readable **node titles** — distinct from synchronous envelope **steps**.
+
+| Unit | Purpose |
+|------|---------|
+| Workflow definition store | JSON/YAML graph: nodes, edges, trigger class |
+| Node `title` + `nodeId` | Track pipeline position (e.g. drawing approval: Submit → Review → Client sign-off) |
+| Pipeline state | Entity position in workflow; audit trail |
+| Trigger classes | Fire on `operation.completed`, schedule, manual advance (ties to C9) |
+
+**Example use case:** Build drawing approval — see product plan §13.
+
+**Depends on:** C3 entity locks (done), C9 events/jobs (done).
+
+---
+
+## C15 — Contract / SDK Toolchain
+
+**Delivers:** `core/tools/` — codegen and validation so apps never hand-write HTTP clients.
+
+| Unit | Purpose |
+|------|---------|
+| OpenAPI → TypeScript SDK | `core/contracts/sdk/typescript/` |
+| Public API subset generator | Existing script; CI integration |
+| Manifest compile + validate | YAML → JSON; CI gate |
+| Core Contracts Catalog doc | Exhaustive platform + envelope + slot reference |
+| Org API composer (optional slice) | Merge enabled-module OpenAPI per org |
+
+**.NET / Java SDK clients:** reserved paths; TS first.
+
+---
+
+## C16 — UI Composition (erganis-ui coordination)
+
+**Delivers:** JSON Schema alignment + validation hooks for **`erganis-ui`** (TypeScript v1 only).
+
+| Core delivers | UI repo delivers (at UI0+) |
+|---------------|----------------------------|
+| `schemas/composition/` — `ui-layout`, theme, slot-registry JSON Schema | `@erganis/ui-contracts` types from schema |
+| Manifest `contributions.layout` validation (C15/C16) | `@erganis/ui-react` layout renderer + hooks |
+| Slot + theme JSON APIs (C10/C12) | `@erganis/ui-shadcn` reference web DS |
+
+**Layout contract:** Module developers ship `*.layout.json` per surface — OpenAPI-equivalent for UI structure. See [`composition/README.md`](../../contracts/schemas/composition/README.md).
+
+**GitHub:** Create `erganis-ui` submodule when UI0 starts — not before Core C13–C15 work. MAUI/RN packages documented only (UI5/UI6).
+
+See [`ui/docs/UI-ARCHITECTURE.md`](../../../ui/docs/UI-ARCHITECTURE.md).
 
 ---
 

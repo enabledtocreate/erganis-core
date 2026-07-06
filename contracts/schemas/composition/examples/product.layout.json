@@ -1,0 +1,34 @@
+{
+  "surfaceId": "product",
+  "version": "0.1.0",
+  "title": "Product",
+  "moduleId": "erganis.inventory",
+  "root": {
+    "type": "grid",
+    "columns": 2,
+    "children": [
+      {
+        "type": "panel",
+        "id": "product-form",
+        "title": "Details",
+        "component": "ProductForm",
+        "bind": {
+          "source": "surface",
+          "stepId": "inventory-load",
+          "path": "/product"
+        }
+      },
+      {
+        "type": "panel",
+        "id": "alternatives",
+        "title": "Alternatives",
+        "component": "ProductAlternatives",
+        "bind": {
+          "source": "surface",
+          "stepId": "inventory-load",
+          "path": "/alternatives"
+        }
+      }
+    ]
+  }
+}

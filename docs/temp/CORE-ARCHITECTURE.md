@@ -1,9 +1,124 @@
 # Erganis Core — Architecture Reference
 
-> **Status:** Core **C0–C11 complete**. **Next:** [Studio modules](../../studio/docs/STUDIO-IMPLEMENTATION-PLAN.md) per slice ([product plan §7](../../../docs/erganis-product-plan.md#studio-module-implementation-phases)).  
-> **Companions:** [`CORE-IMPLEMENTATION-PLAN.md`](./CORE-IMPLEMENTATION-PLAN.md) · [`data/dal/README.md`](../../data/dal/README.md)
+> **Status:** Core **C0–C12 complete**. **Next:** C13–C16 ([implementation plan](./CORE-IMPLEMENTATION-PLAN.md)), [Studio modules](../../studio/docs/STUDIO-IMPLEMENTATION-PLAN.md), [`erganis-ui`](../../../ui/docs/UI-ARCHITECTURE.md).  
+> **Companions:** [`CORE-IMPLEMENTATION-PLAN.md`](./CORE-IMPLEMENTATION-PLAN.md) · [`data/dal/README.md`](../../data/dal/README.md) · [`UI architecture`](../../../ui/docs/UI-ARCHITECTURE.md)
 
 This document explains how Erganis Core is structured: shared types, database schemas, Nest modules, authentication, module loading, and operation orchestration. It is written for reviewers who may not be Nest or Postgres experts.
+
+---
+
+## 0. What Core is (platform model)
+
+**Core is the shared operating system for every Erganis application.** Business features (Documents, Inventory, Build, Codes, Standards) live in **modules**. Core provides identity, contracts, data rules, APIs, orchestration, jobs, files, search, and composition hooks so modules and apps plug in the same way — first-party or third-party.
+
+```mermaid
+flowchart TB
+  subgraph contracts [Layer 1 — Contracts in git]
+    OpenAPI[core/contracts OpenAPI + JSON Schema]
+    Manifest[erganis.module.json]
+    PlatformPkg["@erganis/platform types"]
+    UIContracts[erganis-ui contracts + tokens]
+  end
+
+  subgraph core [Layer 2 — Core runtime]
+    Nest[core/services Nest API]
+    Loader[Module loader + migrator]
+    Orch[Orchestrator + locks]
+    Jobs[pg-boss + outbox + search]
+    Compose[Composition slots + themes]
+    Auth[Auth + org RBAC]
+  end
+
+  subgraph data [Layer 2 — PostgreSQL]
+    PlatformSchema[platform.*]
+    ModuleSchemas[module schemas e.g. documents.*]
+  end
+
+  subgraph apps [Layer 3 — Applications]
+    Studio[Studio + modules]
+    Lyceum[Lyceum Mnemosyne / Nomodeion]
+    Agora[Agora]
+    Companion[Companion]
+  end
+
+  contracts --> core
+  core --> data
+  apps --> core
+  UIContracts --> apps
+```
+
+**One sentence:** Contracts define the rules; Core enforces them at runtime; modules implement domain logic; apps render UX via [`erganis-ui`](../../../ui/docs/UI-ARCHITECTURE.md).
+
+### 0.1 Contract system
+
+| Contract kind | Source of truth | Core's job | Module / app job |
+|---------------|-----------------|------------|------------------|
+| **Platform HTTP API** | `core/contracts/schemas/core/openapi.yaml` | Host routes; validate auth | Optional OpenAPI fragments (future org composer) |
+| **Operation envelope** | `core/contracts/schemas/envelope/` + `@erganis/platform` | Resolve steps; transactions; locks; audit | Register handlers in manifest |
+| **Module manifest** | `core/contracts/schemas/module/` | Discover, validate, load handlers, apply migrations | Author `erganis.module.yaml` → JSON |
+| **Public IDs & DAL** | `@erganis/platform` | Helpers (`createPublicId`, `BaseRepository`) | Use in handlers; UUIDs internal only |
+| **Surface payloads** | Module + future per-surface JSON Schema | Surface API composes parallel loads | Implement `action: load` handlers |
+| **UI composition** | Core slot/theme APIs (C10/C12) + `erganis-ui` contracts | Expose slots, tokens, skins JSON | Declare `contributions.ui`; render via UI packages |
+| **Generated SDKs** | OpenAPI codegen → `core/contracts/sdk/` | Publish/version (C15) | Consume SDK; no hand-written HTTP clients |
+
+**Contracts are not stored as documents in Postgres.** Postgres holds **instances** (users, orgs, themes, module rows) and **registry** (enabled modules, applied migrations). Contract **definitions** live in git and are validated on load/build.
+
+**Gap (C15):** Exhaustive **Core Contracts Catalog** listing every platform schema, slot id, and manifest contribution type.
+
+### 0.2 Core libraries (what developers import)
+
+| Package / area | Path | Used by | Purpose |
+|----------------|------|---------|---------|
+| **`@erganis/platform`** | `core/packages/typescript/` | Core services + all modules | Envelope, `StepHandler`, `BaseRepository`, public IDs, manifest types |
+| **`@erganis/dal-postgres`** | `core/data/dal/` | Core services; modules via `unitOfWork.client` | Postgres adapters, `PgUnitOfWorkFactory` |
+| **`core/services/`** | Nest runtime | Deployed API — **not imported by modules** | HTTP, loader, orchestrator, auth, jobs, files, search, composition |
+| **`core/contracts/`** | Schemas + SDK output | CI, app repos | OpenAPI, JSON Schema, manifest compile |
+| **`core/tools/`** | Planned (C15) | Module authors, CI | SDK gen, manifest validation |
+| **`erganis-ui`** | `ui/` submodule | Studio, Lyceum, Companion | Headless + visual UI adapters — see [UI architecture](../../../ui/docs/UI-ARCHITECTURE.md) |
+
+First-party and third-party modules use the **same** manifest, `@erganis/platform`, and migration rules. TypeScript first for server modules; other languages via generated **clients** (not alternate module runtimes in v1).
+
+### 0.3 Runtime capabilities
+
+**Built (C0–C12):** health/database, auth, module loader, orchestrator (envelope, locks, partial outcomes), module enable/disable, migration validation, FileStore, Surface API, Public API JWT, jobs/outbox/search, composition slots + theme preview, sync stub, operation audit.
+
+**Planned (C13–C16):** agent contract layer (structured JSON for tools/LLMs), workflow definitions with **titled pipeline nodes**, contract/SDK toolchain (`core/tools/`), UI composition libraries coordination with `erganis-ui`. Also: org API composer, full manifest RBAC, SAML, transactional outbox — see [implementation plan](./CORE-IMPLEMENTATION-PLAN.md).
+
+### 0.4 Module developer path
+
+1. Create `studio/modules/{name}/` with `erganis.module.json`, `migrations/`, handlers.
+2. SQL in **own schema** only — never `platform.*`.
+3. Implement **`StepHandler`** with `BaseRepository` + `unitOfWork.client`.
+4. Register operations (and optional jobs) in manifest; build; Core discovers on startup.
+5. Apps call Core — never module code directly.
+
+| Need | Mechanism |
+|------|-----------|
+| Save / mutate | Operation envelope → orchestrator |
+| Load for UI | Surface API `action: load` |
+| Files | Core FileStore API |
+| Background | Manifest `contributions.jobs` |
+| UI slot | Manifest `contributions.ui` + `erganis-ui` |
+
+### 0.5 UI: Core vs erganis-ui vs apps
+
+| Concern | Owner |
+|---------|--------|
+| Slot names, theme tokens/skins (JSON APIs) | **Core** C10/C12 |
+| UI contract types, headless hooks, design tokens source | **`erganis-ui`** submodule |
+| Shadcn reference web components | **`erganis-ui`** `@erganis/ui-shadcn` |
+| MAUI/XAML, React Native adapters | **`erganis-ui`** per-platform packages |
+| React pages and app routing | **Studio**, **Lyceum**, etc. |
+
+Core **does not** ship Shadcn or React in `core/services/`. See [UI architecture § tiers](../../../ui/docs/UI-ARCHITECTURE.md).
+
+### 0.6 First-party vs third-party
+
+Same manifest format, libraries, orchestrator path, and per-org enable/disable (C5). Third-party modules: **mandatory** `migrations/` (C4); SQL limited to own schema.
+
+### 0.7 What Core does not do
+
+Domain logic (products, drawings, codes, standards), React rendering, Lyceum content (Mnemosyne/Nomodeion), Agora catalog, mobile shell UI, hand-written HTTP clients in app repos.
 
 ---
 
@@ -53,7 +168,8 @@ This document explains how Erganis Core is structured: shared types, database sc
 | **0 — Shell** | Runnable Core API + Postgres | Nest app, `HealthModule`, `DatabaseModule`, `MigrationRunner` |
 | **1 — Auth** | Platform identity | OIDC + local fallback, session cookie, JWT, org/membership/roles, domain JIT |
 | **C2 — Loader + envelope** | Extensible modules + transactional saves | Manifest discovery, module migrations, `OrchestratorService`, authenticated `POST /operations/execute` |
-| **C3–C11 — Remaining** | Platform hardening | **Complete** — locks, FileStore, Surface API, migration validation, module enable/disable, public API, platform events, composition, sync stub |
+| **C3–C12 — Platform** | Hardening + composition | **Complete** — locks, FileStore, Surface API, migration validation, module enable/disable, public API, platform events, composition, sync stub, theme preview |
+| **C13–C16 — Next** | Agent JSON, workflows, contracts toolchain, UI libs | **Planned** — see [implementation plan](./CORE-IMPLEMENTATION-PLAN.md) |
 
 **Studio modules** (Documents, Inventory, …) are **not Core phases** — they ship as [Studio slices](../../../docs/erganis-product-plan.md#studio-module-implementation-phases) (S-D1, S-I1, …).
 

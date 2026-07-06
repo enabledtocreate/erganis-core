@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erganis.dev/schemas/composition/ui-layout.schema.json",
+  "title": "ErganisSurfaceLayout",
+  "description": "Declarative layout for a Surface page — module-authored, validated at build time, rendered by erganis-ui.",
+  "type": "object",
+  "required": ["surfaceId", "version", "root"],
+  "properties": {
+    "surfaceId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Surface this layout applies to (e.g. product, build.codes)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?$"
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable page title"
+    },
+    "moduleId": {
+      "type": "string",
+      "description": "Owning module id (e.g. erganis.inventory)"
+    },
+    "root": {
+      "$ref": "#/$defs/layoutNode"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "layoutNode": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "stack",
+            "grid",
+            "tabs",
+            "panel",
+            "slot",
+            "component",
+            "region"
+          ],
+          "description": "stack=vertical/horizontal; grid=CSS grid; tabs=tabbed regions; panel=card/section; slot=platform slot outlet; component=module component ref; region=semantic grouping"
+        },
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "direction": {
+          "type": "string",
+          "enum": ["row", "column"],
+          "description": "For type stack"
+        },
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "For type grid"
+        },
+        "slotId": {
+          "type": "string",
+          "description": "Platform slot id when type=slot (e.g. shell.main)"
+        },
+        "component": {
+          "type": "string",
+          "description": "Module component export name when type=component"
+        },
+        "bind": {
+          "$ref": "#/$defs/dataBinding"
+        },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/layoutNode" }
+        },
+        "props": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Static props passed to component (design-system agnostic)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dataBinding": {
+      "type": "object",
+      "description": "Bind layout region to Surface load or envelope payload",
+      "properties": {
+        "source": {
+          "type": "string",
+          "enum": ["surface", "envelope", "static"],
+          "description": "surface=GET /surfaces/:id/load module step output"
+        },
+        "stepId": {
+          "type": "string",
+          "description": "Manifest operation stepId when source=surface"
+        },
+        "path": {
+          "type": "string",
+          "description": "JSON pointer into step result (e.g. /items)"
+        }
+      },
+      "required": ["source"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -18,6 +18,8 @@
 - `schemas/core/openapi.yaml` — Core Surface API (single source of truth)
 - `schemas/public/v1/` — Generated public subset (`x-audience: public` only — do not edit by hand)
 - `schemas/module/` — Module manifest JSON Schema, examples, YAML → JSON compile
+- `schemas/composition/` — **UI layout JSON Schema** (OpenAPI-equivalent for UI structure) — [README](./schemas/composition/README.md)
+- `schemas/envelope/` — Operation envelope JSON Schema
 - `sdk/typescript/` — Generated TypeScript clients (Phase 0–1)
 - `sdk/dotnet/` — **Reserved** — generated NuGet clients (future)
 - `scripts/generate-public-api.js` — Public API subset generator
@@ -39,7 +41,7 @@ npm run compile-manifest -- path/to/erganis.module.yaml
 | .NET | `sdk/dotnet/` | Reserved — no codegen until needed |
 | Java | `sdk/java/` | Reserved — future |
 
-Codegen orchestrated from [`../tools/`](../tools/) when implemented. See [docs/erganis-product-plan.md](../../docs/erganis-product-plan.md) §6 Contracts & SDKs.
+Codegen orchestrated from [`../tools/`](../tools/) when implemented (Core **C15**). UI composition libraries live in **`erganis-ui`** ([`ui/docs/UI-ARCHITECTURE.md`](../../ui/docs/UI-ARCHITECTURE.md)). See [docs/erganis-product-plan.md](../../docs/erganis-product-plan.md) §6 Contracts & SDKs.
 
 Module **migrations** in manifest extend the database when modules are enabled — separate from OpenAPI but validated via the same manifest schema.
 

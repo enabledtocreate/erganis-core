@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erganis.dev/schemas/composition/theme.schema.json",
+  "title": "ErganisResolvedTheme",
+  "description": "Design tokens and component skins — aligns with Core C12 GET/PUT /composition/theme response.",
+  "type": "object",
+  "required": ["source", "designTokens", "componentSkins"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "enum": ["platform", "org", "preview"]
+    },
+    "designTokens": {
+      "type": "object",
+      "properties": {
+        "colors": { "type": "object", "additionalProperties": { "type": "string" } },
+        "fonts": { "type": "object", "additionalProperties": { "type": "string" } },
+        "spacing": { "type": "object", "additionalProperties": { "type": "string" } },
+        "radii": { "type": "object", "additionalProperties": { "type": "string" } },
+        "shadows": { "type": "object", "additionalProperties": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "componentSkins": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["slot", "variant"],
+        "properties": {
+          "slot": { "type": "string" },
+          "variant": { "type": "string" },
+          "density": { "type": "string", "enum": ["compact", "default", "comfortable"] },
+          "props": { "type": "object", "additionalProperties": true }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

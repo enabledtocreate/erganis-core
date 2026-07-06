@@ -105,9 +105,22 @@
           "type": "array",
           "items": {
             "type": "object",
+            "required": ["slot", "component"],
             "properties": {
               "slot": { "type": "string" },
               "component": { "type": "string" }
+            }
+          }
+        },
+        "layout": {
+          "type": "array",
+          "description": "Declarative surface page layouts (JSON validated against ui-layout.schema.json)",
+          "items": {
+            "type": "object",
+            "required": ["surfaceId", "path"],
+            "properties": {
+              "surfaceId": { "type": "string" },
+              "path": { "type": "string", "description": "Path to layout JSON relative to module root" }
             }
           }
         }
