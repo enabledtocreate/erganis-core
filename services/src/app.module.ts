@@ -14,6 +14,8 @@ import { SyncModule } from './modules/sync/sync.module';
 import { OutboxModule } from './modules/outbox/outbox.module';
 import { JobModule } from './modules/jobs/job.module';
 import { SearchModule } from './modules/search/search.module';
+import { AgentModule } from './modules/agent/agent.module';
+import { WorkflowModule } from './modules/workflow/workflow.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { SearchModule } from './modules/search/search.module';
     JobModule,
     OutboxModule,
     SearchModule,
+    AgentModule,
+    WorkflowModule,
   ],
 })
 export class AppModule {}

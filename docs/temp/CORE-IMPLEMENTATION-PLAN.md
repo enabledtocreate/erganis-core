@@ -1,6 +1,6 @@
 # Erganis Core — Implementation Plan (C0–C16)
 
-> **Status:** **C0–C12 complete.** **C13–C16 planned.**  
+> **Status:** **C0–C16 complete.**  
 > **Architecture:** [`CORE-ARCHITECTURE.md`](./CORE-ARCHITECTURE.md) · **UI:** [`UI-ARCHITECTURE.md`](../../../ui/docs/UI-ARCHITECTURE.md) · **Product plan:** [§6 Core](../../../docs/erganis-product-plan.md#6-core)  
 > **Other plans:** [Studio](../../studio/docs/STUDIO-IMPLEMENTATION-PLAN.md) · [Index](../../../docs/IMPLEMENTATION-PLANS.md)
 
@@ -25,10 +25,10 @@ This document consolidates all Core implementation phases (formerly `PHASE-0.md`
 | **C10** | UI composition | Done | C9 |
 | **C11** | Sync API (stub) | Done | C10 |
 | **C12** | UI skin & theme preview | Done | C10, S0 |
-| **C13** | Agent contract layer | Planned | C7, C10 |
-| **C14** | Workflow definitions + titled nodes | Planned | C3, C9 |
-| **C15** | Contract / SDK toolchain | Planned | C8, contracts |
-| **C16** | UI composition (erganis-ui coordination) | Planned | C10, C12, UI repo |
+| **C13** | Agent contract layer | Done | C7, C10 |
+| **C14** | Workflow definitions + titled nodes | Done | C3, C9 |
+| **C15** | Contract / SDK toolchain | Done | C8, contracts |
+| **C16** | UI composition (erganis-ui coordination) | Done | C10, C12, UI repo |
 
 ```mermaid
 flowchart LR
@@ -345,14 +345,16 @@ Default slots: `shell.header`, `shell.sidebar`, `shell.main`, `dashboard.widget`
 
 ## C13 — Agent Contract Layer
 
+**Status:** Done
+
 **Delivers:** Structured JSON vocabulary for AI agents and tool clients — same orchestrator/Surface paths as human UI, plus discovery and typed payloads.
 
 | Unit | Purpose |
 |------|---------|
-| Per-surface JSON Schema | Typed `load` / `save` payload shapes beyond free-form `payload` |
+| `@erganis/platform` agent types | `AgentCapabilitiesResponse`, `StructuredPlatformError` |
 | `GET /agent/capabilities?orgSlug=` | Machine-readable index: surfaces, actions, enabled modules (respects C5) |
-| Capability manifest | Surfaces, actions, failure classes, required fields |
-| Structured errors | Stable `code`, `message`, `field`, `recoverable` for agent retry |
+| `StructuredExceptionFilter` | Stable `code`, `message`, `field`, `recoverable` on all HTTP errors |
+| `AgentModule` | `agent-capabilities.service.ts`, `agent.controller.ts` |
 
 **Principle:** Agents use **operation envelope** and **Surface API** — no parallel mutation API.
 
@@ -362,14 +364,15 @@ Default slots: `shell.header`, `shell.sidebar`, `shell.main`, `dashboard.widget`
 
 ## C14 — Workflow Definitions & Titled Nodes
 
+**Status:** Done
+
 **Delivers:** Long-running pipelines with human- and agent-readable **node titles** — distinct from synchronous envelope **steps**.
 
 | Unit | Purpose |
 |------|---------|
-| Workflow definition store | JSON/YAML graph: nodes, edges, trigger class |
-| Node `title` + `nodeId` | Track pipeline position (e.g. drawing approval: Submit → Review → Client sign-off) |
-| Pipeline state | Entity position in workflow; audit trail |
-| Trigger classes | Fire on `operation.completed`, schedule, manual advance (ties to C9) |
+| `008_platform_workflows.sql` | Definitions, instances, node log |
+| `WorkflowModule` | REST + `operation.completed` trigger handler |
+| Seed `build.drawing-approval` | Submit → Review → Client approval |
 
 **Example use case:** Build drawing approval — see product plan §13.
 
@@ -379,15 +382,16 @@ Default slots: `shell.header`, `shell.sidebar`, `shell.main`, `dashboard.widget`
 
 ## C15 — Contract / SDK Toolchain
 
-**Delivers:** `core/tools/` — codegen and validation so apps never hand-write HTTP clients.
+**Status:** Done (validation CLI + catalog; OpenAPI SDK gen reserved)
+
+**Delivers:** `core/tools/` — validation so apps never hand-write HTTP clients incorrectly.
 
 | Unit | Purpose |
 |------|---------|
-| OpenAPI → TypeScript SDK | `core/contracts/sdk/typescript/` |
-| Public API subset generator | Existing script; CI integration |
-| Manifest compile + validate | YAML → JSON; CI gate |
-| Core Contracts Catalog doc | Exhaustive platform + envelope + slot reference |
-| Org API composer (optional slice) | Merge enabled-module OpenAPI per org |
+| `core/tools/validate-layout.mjs` | Structural layout validation |
+| `core/tools/validate-manifest.mjs` | Manifest structural validation |
+| `CORE-CONTRACTS-CATALOG.md` | Exhaustive platform + envelope + slot reference |
+| OpenAPI → TypeScript SDK | Reserved: `core/contracts/sdk/typescript/` |
 
 **.NET / Java SDK clients:** reserved paths; TS first.
 
@@ -395,13 +399,16 @@ Default slots: `shell.header`, `shell.sidebar`, `shell.main`, `dashboard.widget`
 
 ## C16 — UI Composition (erganis-ui coordination)
 
+**Status:** Done (Core side; `erganis-ui` repo at UI0)
+
 **Delivers:** JSON Schema alignment + validation hooks for **`erganis-ui`** (TypeScript v1 only).
 
 | Core delivers | UI repo delivers (at UI0+) |
 |---------------|----------------------------|
 | `schemas/composition/` — `ui-layout`, theme, slot-registry JSON Schema | `@erganis/ui-contracts` types from schema |
-| Manifest `contributions.layout` validation (C15/C16) | `@erganis/ui-react` layout renderer + hooks |
-| Slot + theme JSON APIs (C10/C12) | `@erganis/ui-shadcn` reference web DS |
+| `layout.validator.ts` + module load validation | `@erganis/ui-react` layout renderer + hooks |
+| `GET /composition/schemas` | `@erganis/ui-shadcn` reference web DS |
+| Slot + theme JSON APIs (C10/C12) | Shell integration in Studio S0 |
 
 **Layout contract:** Module developers ship `*.layout.json` per surface — OpenAPI-equivalent for UI structure. See [`composition/README.md`](../../contracts/schemas/composition/README.md).
 

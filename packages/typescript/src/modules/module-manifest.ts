@@ -26,6 +26,16 @@ export interface ModuleManifestEvent {
   handler: string;
 }
 
+export interface ModuleManifestUi {
+  slot: string;
+  component: string;
+}
+
+export interface ModuleManifestLayout {
+  surfaceId: string;
+  path: string;
+}
+
 export interface ModuleManifest {
   id: string;
   name: string;
@@ -37,6 +47,8 @@ export interface ModuleManifest {
     operations?: ModuleManifestOperation[];
     jobs?: ModuleManifestJob[];
     events?: ModuleManifestEvent[];
+    ui?: ModuleManifestUi[];
+    layout?: ModuleManifestLayout[];
   };
   migrations?: ModuleManifestMigration[];
 }

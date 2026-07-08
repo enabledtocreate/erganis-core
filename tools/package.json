@@ -1,0 +1,11 @@
+{
+  "name": "@erganis/core-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Core contract validation CLI (C15)",
+  "type": "module",
+  "scripts": {
+    "validate:layout": "node validate-layout.mjs",
+    "validate:manifest": "node validate-manifest.mjs"
+  }
+}

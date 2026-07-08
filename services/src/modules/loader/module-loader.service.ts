@@ -12,6 +12,7 @@ import {
   stepHandlerKey,
 } from '@erganis/platform';
 import { DatabaseService } from '../database/database.service';
+import { validateLayoutFile } from '../composition/layout.validator';
 import { ModuleDiscoveryService } from './module-discovery.service';
 import { ModuleMigrationService } from './module-migration.service';
 import { ModuleRegistryRepository } from './module-registry.repository';
@@ -64,6 +65,7 @@ export class ModuleLoaderService implements OnApplicationBootstrap {
       await this.registry.upsertEnabled(mod.manifest.id, mod.manifest.version);
       await this.loadHandlers(mod);
       await this.loadJobHandlers(mod);
+      await this.validateModuleLayouts(mod);
       this.modules.push({
         manifest: mod.manifest,
         rootDir: mod.rootDir,
@@ -145,5 +147,17 @@ export class ModuleLoaderService implements OnApplicationBootstrap {
   ): Record<string, unknown> {
     const requireFromModule = createRequire(path.join(moduleRoot, 'package.json'));
     return requireFromModule(entryPath) as Record<string, unknown>;
+  }
+
+  private async validateModuleLayouts(mod: DiscoveredModule): Promise<void> {
+    for (const layout of mod.manifest.contributions?.layout ?? []) {
+      const layoutPath = path.resolve(mod.rootDir, layout.path);
+      const result = await validateLayoutFile(layoutPath, layout.surfaceId);
+      if (!result.valid) {
+        throw new Error(
+          `Module ${mod.manifest.id} layout validation failed: ${result.errors.join('; ')}`,
+        );
+      }
+    }
   }
 }
