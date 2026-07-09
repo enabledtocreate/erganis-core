@@ -10,8 +10,12 @@ export class SurfaceController {
   @UseGuards(SessionGuard)
   load(
     @Param('surfaceId') surfaceId: string,
-    @Query('orgSlug') orgSlug: string,
+    @Query() query: Record<string, string | undefined>,
   ) {
-    return this.surfaces.loadSurface(orgSlug, surfaceId, {});
+    const { orgSlug, ...rest } = query;
+    const payload = Object.fromEntries(
+      Object.entries(rest).filter(([, value]) => value !== undefined && value !== ''),
+    );
+    return this.surfaces.loadSurface(orgSlug ?? '', surfaceId, payload);
   }
 }

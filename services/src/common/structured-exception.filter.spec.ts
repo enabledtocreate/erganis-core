@@ -8,6 +8,7 @@ describe('StructuredExceptionFilter', () => {
   const host = {
     switchToHttp: () => ({
       getResponse: () => ({ status }),
+      getRequest: () => ({ method: 'GET', url: '/test' }),
     }),
   } as unknown as ArgumentsHost;
 

@@ -7,6 +7,7 @@ import {
 import { OrgRepository } from '../auth/infrastructure/org.repository';
 import { ModuleLoaderService } from '../loader/module-loader.service';
 import { OrgModuleRepository } from '../loader/org-module.repository';
+import { ModuleAccessService } from '../loader/module-access.service';
 
 const PLATFORM_SCHEMA_REFS: AgentSchemaRef[] = [
   {
@@ -37,6 +38,7 @@ export class AgentCapabilitiesService {
     private readonly loader: ModuleLoaderService,
     private readonly orgs: OrgRepository,
     private readonly orgModules: OrgModuleRepository,
+    private readonly moduleAccess: ModuleAccessService,
   ) {}
 
   async buildCapabilities(orgSlug: string): Promise<AgentCapabilitiesResponse> {
@@ -45,7 +47,7 @@ export class AgentCapabilitiesService {
 
     for (const mod of this.loader.getEnabledModules()) {
       if (org) {
-        const enabled = await this.orgModules.isModuleEnabled(org.id, mod.manifest.id);
+        const enabled = await this.moduleAccess.isModuleEnabledForOrg(org.id, mod.manifest.id);
         if (!enabled) {
           continue;
         }

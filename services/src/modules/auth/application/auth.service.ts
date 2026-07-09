@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   Inject,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -27,6 +28,8 @@ export interface LoginResult {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly orgs: OrgRepository,
     private readonly users: UserRepository,
@@ -51,29 +54,37 @@ export class AuthService {
 
     const org = await this.orgs.findBySlug(orgSlug);
     if (!org) {
+      this.logger.warn(`Local login failed: unknown org slug=${orgSlug}`);
       throw new UnauthorizedException('Invalid credentials');
     }
     if (org.authMode === 'oidc') {
+      this.logger.warn(`Local login rejected: org requires OIDC slug=${orgSlug}`);
       throw new ForbiddenException('Organization requires OIDC login');
     }
 
     const user = await this.users.findByEmail(email);
     if (!user) {
+      this.logger.warn(`Local login failed: unknown user email=${email} org=${orgSlug}`);
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const valid = await this.passwords.verify(password, user.passwordHash);
     if (!valid) {
+      this.logger.warn(`Local login failed: bad password email=${email} org=${orgSlug}`);
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const membership = await this.memberships.findMembership(org.id, user.id);
     if (!membership) {
+      this.logger.warn(
+        `Local login failed: user not in org email=${email} org=${orgSlug}`,
+      );
       throw new ForbiddenException('User is not a member of this organization');
     }
 
     const sessionToken = await this.sessions.createSession(user.id);
     const view = await this.buildSessionView(user.id, orgSlug);
+    this.logger.log(`Local login success email=${email} org=${orgSlug}`);
     return { sessionToken, view };
   }
 

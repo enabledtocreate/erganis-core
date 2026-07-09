@@ -88,6 +88,17 @@ export class OrgRepository extends PgRepository {
     );
   }
 
+  async listRoles(orgId: string): Promise<RoleRecord[]> {
+    return this.queryMany(
+      `SELECT id, org_id, name, permissions, is_admin
+       FROM platform.roles
+       WHERE org_id = $1
+       ORDER BY name ASC`,
+      [orgId],
+      mapRole,
+    );
+  }
+
   async createOrg(input: {
     publicId: string;
     slug: string;

@@ -10,6 +10,13 @@ export class ModuleAccessService {
     private readonly loader: ModuleLoaderService,
   ) {}
 
+  async isModuleEnabledForOrg(orgId: string, moduleId: string): Promise<boolean> {
+    const mod = this.loader.getEnabledModules().find((m) => m.manifest.id === moduleId);
+    const defaultEnabled = mod?.manifest.shipByDefault !== false;
+    const setting = await this.orgModules.getSetting(orgId, moduleId);
+    return setting?.enabled ?? defaultEnabled;
+  }
+
   async assertOperationAllowed(
     orgId: string,
     surfaceId: string,
@@ -25,7 +32,7 @@ export class ModuleAccessService {
     }
 
     for (const step of steps) {
-      const enabled = await this.orgModules.isModuleEnabled(orgId, step.moduleId);
+      const enabled = await this.isModuleEnabledForOrg(orgId, step.moduleId);
       if (!enabled) {
         throw new ForbiddenException({
           code: 'MODULE_DISABLED',

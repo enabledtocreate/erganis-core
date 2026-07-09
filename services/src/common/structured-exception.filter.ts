@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { StructuredPlatformError } from '@erganis/platform';
@@ -18,15 +19,32 @@ const RECOVERABLE_CODES = new Set([
 
 @Catch()
 export class StructuredExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(StructuredExceptionFilter.name);
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const request =
+      typeof ctx.getRequest === 'function'
+        ? ctx.getRequest<{ method?: string; url?: string }>()
+        : undefined;
 
     const body = this.toStructuredError(exception);
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
+
+    if (status >= 500) {
+      this.logger.error(
+        `${request?.method ?? '?'} ${request?.url ?? '?'} ${status} ${body.code}: ${body.message}`,
+        exception instanceof Error ? exception.stack : undefined,
+      );
+    } else if (status >= 400) {
+      this.logger.warn(
+        `${request?.method ?? '?'} ${request?.url ?? '?'} ${status} ${body.code}: ${body.message}`,
+      );
+    }
 
     response.status(status).json({
       error: body,

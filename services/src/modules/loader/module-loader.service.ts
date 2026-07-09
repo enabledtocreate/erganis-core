@@ -145,8 +145,10 @@ export class ModuleLoaderService implements OnApplicationBootstrap {
     moduleRoot: string,
     entryPath: string,
   ): Record<string, unknown> {
-    const requireFromModule = createRequire(path.join(moduleRoot, 'package.json'));
-    return requireFromModule(entryPath) as Record<string, unknown>;
+    const moduleRootAbs = path.resolve(moduleRoot);
+    const entryAbs = path.resolve(entryPath);
+    const requireFromModule = createRequire(path.join(moduleRootAbs, 'package.json'));
+    return requireFromModule(entryAbs) as Record<string, unknown>;
   }
 
   private async validateModuleLayouts(mod: DiscoveredModule): Promise<void> {

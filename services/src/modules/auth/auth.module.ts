@@ -73,6 +73,15 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
       inject: [ConfigService, MockOidcAuthProvider, HttpOidcAuthProvider],
     },
   ],
-  exports: [AuthService, SessionService, SessionGuard, TokenService, JwtAuthGuard, UserRepository],
+  exports: [
+    AuthService,
+    SessionService,
+    SessionGuard,
+    TokenService,
+    JwtAuthGuard,
+    UserRepository,
+    OrgRepository,
+    MembershipRepository,
+  ],
 })
 export class AuthModule {}

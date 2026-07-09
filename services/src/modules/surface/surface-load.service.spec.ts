@@ -30,10 +30,17 @@ describe('SurfaceLoadService', () => {
     assertOperationAllowed: jest.fn().mockResolvedValue(undefined),
   };
 
+  const database = {
+    getPool: jest.fn().mockReturnValue({
+      query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+    }),
+  };
+
   const service = new SurfaceLoadService(
     loader as never,
     orgs as never,
     moduleAccess as never,
+    database as never,
   );
 
   beforeEach(() => {

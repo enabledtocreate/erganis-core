@@ -1,8 +1,10 @@
 import { StepHandler, stepHandlerKey } from '@erganis/platform';
+import { queryClientFromPool } from '@erganis/dal-postgres';
 import { Injectable } from '@nestjs/common';
 import { ModuleLoaderService } from '../loader/module-loader.service';
 import { OrgRepository } from '../auth/infrastructure/org.repository';
 import { ModuleAccessService } from '../loader/module-access.service';
+import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class SurfaceLoadService {
@@ -10,6 +12,7 @@ export class SurfaceLoadService {
     private readonly loader: ModuleLoaderService,
     private readonly orgs: OrgRepository,
     private readonly moduleAccess: ModuleAccessService,
+    private readonly database: DatabaseService,
   ) {}
 
   async loadSurface(orgSlug: string, surfaceId: string, payload: Record<string, unknown>) {
@@ -56,8 +59,12 @@ export class SurfaceLoadService {
     surfaceId: string,
     payload: Record<string, unknown>,
   ) {
-    const noopUow = {
-      client: { query: async () => ({ rows: [], rowCount: 0 }) },
+    const pool = this.database.getPool();
+    if (!pool) {
+      throw new Error('Database not configured');
+    }
+    const readUow = {
+      client: queryClientFromPool(pool),
       commit: async () => undefined,
       rollback: async () => undefined,
     };
@@ -73,7 +80,7 @@ export class SurfaceLoadService {
         action: 'load',
         initiatedAt: new Date().toISOString(),
       },
-      noopUow,
+      readUow,
       payload,
     );
   }

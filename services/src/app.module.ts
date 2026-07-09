@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
+import { HttpLoggingInterceptor } from './common/logging/http-logging.interceptor';
 import { DatabaseModule } from './modules/database/database.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -16,6 +18,7 @@ import { JobModule } from './modules/jobs/job.module';
 import { SearchModule } from './modules/search/search.module';
 import { AgentModule } from './modules/agent/agent.module';
 import { WorkflowModule } from './modules/workflow/workflow.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -38,6 +41,8 @@ import { WorkflowModule } from './modules/workflow/workflow.module';
     SearchModule,
     AgentModule,
     WorkflowModule,
+    AdminModule,
   ],
+  providers: [{ provide: APP_INTERCEPTOR, useClass: HttpLoggingInterceptor }],
 })
 export class AppModule {}

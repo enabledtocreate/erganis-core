@@ -57,4 +57,19 @@ export class OrgModuleRepository extends PgRepository {
       [orgId, moduleId, enabled],
     );
   }
+
+  async listSettings(orgId: string): Promise<OrgModuleSetting[]> {
+    return this.queryMany(
+      `SELECT org_id, module_id, enabled, disabled_operations
+       FROM platform.org_module_settings
+       WHERE org_id = $1`,
+      [orgId],
+      (row) => ({
+        orgId: row.org_id as string,
+        moduleId: row.module_id as string,
+        enabled: row.enabled as boolean,
+        disabledOperations: (row.disabled_operations as string[]) ?? [],
+      }),
+    );
+  }
 }

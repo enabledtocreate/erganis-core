@@ -38,7 +38,7 @@ Legacy placeholder folders (`api-gateway/`, `business-logic/`, …) were removed
 | `DATABASE_URL` | Yes | Core PostgreSQL connection string |
 | `ERGANIS_DATA_ROOT` | Yes (v1 files) | Local file storage root |
 | `API_PORT` | No | Default 5000 |
-| `LOG_LEVEL` | No | info \| debug \| warn \| error |
+| `LOG_LEVEL` | No | Nest console level: `error` \| `warn` \| `info` (default) \| `debug` |
 | `NODE_ENV` | No | development \| production |
 
 Redis is **not required** for v1 (pg-boss uses PostgreSQL).
@@ -73,6 +73,17 @@ npm run start:dev
 | `npm test` | Unit tests (Jest) |
 | `npm run test:e2e` | HTTP e2e tests (supertest) |
 | `npm run start:dev` | Watch mode |
+| `npm run seed:dev` | Upsert local dev org/user (`acme` / `admin@acme.com` / `test-password`) |
+
+### Logging
+
+Set `LOG_LEVEL` in `.env` (default `info`). Core uses Nest's console logger with:
+
+- **HTTP** — request line per route (`[HTTP] POST /auth/local/...`)
+- **AuthService** — failed login reason (org/user/password), success on login
+- **StructuredExceptionFilter** — 4xx warnings, 5xx errors with stack
+
+Use `LOG_LEVEL=debug` for verbose Nest output during development.
 
 See [`../docs/temp/CORE-IMPLEMENTATION-PLAN.md`](../docs/temp/CORE-IMPLEMENTATION-PLAN.md) for implementation phases (C0–C11).
 

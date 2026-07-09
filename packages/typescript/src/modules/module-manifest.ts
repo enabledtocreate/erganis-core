@@ -51,6 +51,8 @@ export interface ModuleManifest {
     layout?: ModuleManifestLayout[];
   };
   migrations?: ModuleManifestMigration[];
+  /** When false, orgs must explicitly enable via Admin (dev/tooling modules). */
+  shipByDefault?: boolean;
 }
 
 export interface DiscoveredModule {

@@ -1,24 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { SessionGuard } from '../auth/guards/session.guard';
 import { OrgModuleRepository } from './org-module.repository';
-import { ModuleLoaderService } from './module-loader.service';
 
+/** @deprecated Prefer POST /admin/:orgSlug/modules/:moduleId */
 @Controller('admin/modules')
 @UseGuards(SessionGuard)
 export class ModuleAdminController {
-  constructor(
-    private readonly orgModules: OrgModuleRepository,
-    private readonly loader: ModuleLoaderService,
-  ) {}
-
-  @Get(':orgId')
-  listForOrg(@Param('orgId') orgId: string) {
-    return this.loader.getEnabledModules().map((m) => ({
-      moduleId: m.manifest.id,
-      name: m.manifest.name,
-      orgId,
-    }));
-  }
+  constructor(private readonly orgModules: OrgModuleRepository) {}
 
   @Post(':orgId/:moduleId/enable')
   async setEnabled(

@@ -1,9 +1,17 @@
 import path from 'path';
 
+function normalizeDatabaseUrl(url: string): string {
+  // On Windows, localhost often resolves to ::1 (WSL relay) while Docker Postgres binds IPv4.
+  if (process.platform === 'win32' && url.includes('@localhost:')) {
+    return url.replace('@localhost:', '@127.0.0.1:');
+  }
+  return url;
+}
+
 export default () => ({
   port: parseInt(process.env.API_PORT ?? '5000', 10),
   host: process.env.API_HOST ?? '0.0.0.0',
-  databaseUrl: process.env.DATABASE_URL ?? '',
+  databaseUrl: normalizeDatabaseUrl(process.env.DATABASE_URL ?? ''),
   dataRoot: process.env.ERGANIS_DATA_ROOT ?? '',
   nodeEnv: process.env.NODE_ENV ?? 'development',
   jwtSecret: process.env.JWT_SECRET ?? 'dev-only-change-in-production',
@@ -18,6 +26,13 @@ export default () => ({
   modulesRoot:
     process.env.MODULES_ROOT ??
     path.resolve(process.cwd(), '../../studio/modules'),
+  modulesExtraRoots: (process.env.MODULES_EXTRA_ROOTS ?? '../../developer')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => path.resolve(entry)),
+  corsOrigins: process.env.CORS_ORIGINS ?? 'http://localhost:3000',
+  logLevel: process.env.LOG_LEVEL ?? 'info',
   entityLockTtlSeconds: parseInt(process.env.ENTITY_LOCK_TTL_SECONDS ?? '300', 10),
   jobsEnabled: (process.env.JOBS_ENABLED ?? 'true') === 'true',
   pgBossSchema: process.env.PGBOSS_SCHEMA ?? 'pgboss',
